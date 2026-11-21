@@ -218,7 +218,7 @@
 
                     <div class="flex items-center gap-2">
                         <label for="referenceMmInput" class="text-xs font-mono text-amber-300 whitespace-nowrap">Ref Ruler (mm):</label>
-                        <input id="referenceMmInput" type="number" step="0.1" min="0.1" value="15.0" class="w-20 px-2 py-1 rounded bg-slate-800 border border-amber-500/50 text-amber-300 font-mono text-xs font-semibold focus:outline-none focus:border-amber-400">
+                        <input id="referenceMmInput" type="number" step="0.1" min="0.1" value="" placeholder="mm" class="w-20 px-2 py-1 rounded bg-slate-800 border border-amber-500/50 text-amber-300 font-mono text-xs font-semibold focus:outline-none focus:border-amber-400">
                         <button id="btnAutoDetectHole" type="button" title="Scan dark opening near circle center" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-mono text-sky-300 transition">
                             Auto-Snap
                         </button>
@@ -274,7 +274,7 @@
                             Hole Diameter (mm)
                         </label>
                         <div class="relative">
-                            <input id="manualDiameterInput" type="number" step="0.05" min="0.1" max="200" value="4.20" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <input id="manualDiameterInput" type="number" step="0.05" min="0.1" max="200" value="" placeholder="0.00" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
                             <span class="absolute right-3 top-2 text-xs font-mono text-slate-400">mm</span>
                         </div>
                     </div>
@@ -282,11 +282,11 @@
                     <div class="bg-white px-3.5 py-2 rounded-lg border border-slate-200 flex items-center justify-between">
                         <div>
                             <div class="text-[11px] uppercase font-semibold text-slate-400">Cross-Section Area</div>
-                            <div class="font-mono text-sm font-bold text-slate-900"><span id="panelAreaReadout">13.85</span> mm²</div>
+                            <div class="font-mono text-sm font-bold text-slate-900"><span id="panelAreaReadout">0.00</span> mm²</div>
                         </div>
                         <div class="text-right">
                             <div class="text-[11px] uppercase font-semibold text-slate-400">Radius</div>
-                            <div class="font-mono text-xs font-semibold text-slate-600"><span id="panelRadiusReadout">2.10</span> mm</div>
+                            <div class="font-mono text-xs font-semibold text-slate-600"><span id="panelRadiusReadout">0.00</span> mm</div>
                         </div>
                     </div>
                 </div>
@@ -307,10 +307,10 @@
                     <div>
                         <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Material Rheology</label>
                         <div class="grid grid-cols-2 gap-2.5">
-                            <button id="matPasteBtn" type="button" class="p-3 rounded-xl border-2 border-sky-600 bg-sky-50/70 text-left transition">
+                            <button id="matPasteBtn" type="button" class="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition">
                                 <div class="flex items-center justify-between">
                                     <span class="font-bold text-sm text-slate-900">Paste / Gel</span>
-                                    <span class="w-2.5 h-2.5 rounded-full bg-sky-600"></span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
                                 </div>
                                 <p class="text-[11px] text-slate-600 mt-1">Continuous cylinder flow (~95–100% fill)</p>
                             </button>
@@ -332,7 +332,7 @@
                                 Material Density
                             </label>
                             <div class="relative">
-                                <input id="densityInput" type="number" step="0.05" min="0.05" max="25" value="1.38" class="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <input id="densityInput" type="number" step="0.05" min="0.05" max="25" value="" placeholder="0.00" class="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
                                 <span class="absolute right-2.5 top-2.5 text-[11px] font-mono text-slate-400">g/cm³</span>
                             </div>
                         </div>
@@ -342,7 +342,7 @@
                                 Daily Dispense Length
                             </label>
                             <div class="relative">
-                                <input id="dispenseLengthInput" type="number" step="1" min="0" max="10000" value="25" class="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <input id="dispenseLengthInput" type="number" step="1" min="0" max="10000" value="" placeholder="0" class="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
                                 <span class="absolute right-2.5 top-2.5 text-[11px] font-mono text-slate-400">mm/day</span>
                             </div>
                         </div>
@@ -354,13 +354,13 @@
                             <label for="packingSlider" class="text-xs font-semibold text-slate-700">
                                 Packing Efficiency / Fill Factor
                             </label>
-                            <span id="packingValueDisplay" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white border border-slate-200 text-sky-700">100%</span>
+                            <span id="packingValueDisplay" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white border border-slate-200 text-sky-700">0%</span>
                         </div>
-                        <input id="packingSlider" type="range" min="30" max="100" step="1" value="100" class="w-full cursor-pointer">
+                        <input id="packingSlider" type="range" min="0" max="100" step="1" value="0" class="w-full cursor-pointer">
                         <div class="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
-                            <span>30% (Fine Powder)</span>
-                            <span>65% (Tapped)</span>
-                            <span>100% (Solid Paste)</span>
+                            <span>0% (Unset)</span>
+                            <span>65% (Powder)</span>
+                            <span>100% (Paste)</span>
                         </div>
                     </div>
 
@@ -369,10 +369,10 @@
                         <div>
                             <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Orifice Model Estimate</div>
                             <div class="font-mono text-lg font-bold text-sky-400 mt-0.5">
-                                <span id="modelRateReadout">0.48</span> <span class="text-xs font-normal text-slate-300">g / day</span>
+                                <span id="modelRateReadout">0.00</span> <span class="text-xs font-normal text-slate-300">g / day</span>
                             </div>
                             <div class="text-[11px] font-mono text-slate-400">
-                                (<span id="modelVolumeReadout">346.3</span> mm³ extruded/day)
+                                (<span id="modelVolumeReadout">0.0</span> mm³ extruded/day)
                             </div>
                         </div>
                         <button id="useModelRateBtn" type="button" class="px-3 py-2 rounded-lg text-xs font-semibold bg-sky-600 text-white hover:bg-sky-500 transition shrink-0">
@@ -388,15 +388,15 @@
                                 <p class="text-[11px] text-slate-500">Record daily weight drops for empirical rolling average.</p>
                             </div>
                             <button id="useLogRateBtn" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition">
-                                Use Log Avg (<span id="logAvgBadgeVal">0.52</span>g)
+                                Use Log Avg (<span id="logAvgBadgeVal">0.00</span>g)
                             </button>
                         </div>
 
                         <!-- Add New Daily Usage Entry Form -->
                         <div class="flex items-center gap-2 mb-2.5">
-                            <input id="newLogDateInput" type="date" value="2026-11-21" class="px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <input id="newLogDateInput" type="date" value="" class="px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
                             <div class="relative flex-1">
-                                <input id="newLogGramsInput" type="number" step="0.01" min="0.01" placeholder="0.50" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <input id="newLogGramsInput" type="number" step="0.01" min="0.01" value="" placeholder="Grams used" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
                                 <span class="absolute right-2.5 top-1.5 text-[11px] font-mono text-slate-400">g</span>
                             </div>
                             <button id="btnAddLog" type="button" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition shrink-0">
@@ -443,7 +443,7 @@
                                 <label for="productNameInput" class="block text-xs font-semibold text-slate-700 mb-1">
                                     Product Name / Label
                                 </label>
-                                <input id="productNameInput" type="text" value="Mint Fluoride Toothpaste" placeholder="e.g. Whey Protein, Toothpaste" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <input id="productNameInput" type="text" value="" placeholder="Enter product name" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
                             </div>
                             <div>
                                 <label class="block text-xs font-semibold text-slate-700 mb-1">
@@ -464,7 +464,7 @@
                                 <label for="totalWeightInput" class="block text-xs font-semibold text-slate-700 mb-1">
                                     Net / Total Qty (g)
                                 </label>
-                                <input id="totalWeightInput" type="number" step="1" min="1" value="100" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <input id="totalWeightInput" type="number" step="1" min="1" value="" placeholder="Total g" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
                             </div>
 
                             <div>
@@ -476,14 +476,14 @@
                                         = Full
                                     </button>
                                 </div>
-                                <input id="remainingWeightInput" type="number" step="0.5" min="0" value="75" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <input id="remainingWeightInput" type="number" step="0.5" min="0" value="" placeholder="Left g" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
                             </div>
 
                             <div>
                                 <label for="startDateInput" class="block text-xs font-semibold text-slate-700 mb-1">
                                     Start Date
                                 </label>
-                                <input id="startDateInput" type="date" value="2026-11-21" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 bg-white font-mono text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <input id="startDateInput" type="date" value="" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 bg-white font-mono text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
                             </div>
                         </div>
                     </div>
@@ -492,15 +492,15 @@
                     <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
                         <div class="flex items-center justify-between text-xs">
                             <span class="font-semibold text-slate-700">Container Inventory Level</span>
-                            <span id="stockBarLabel" class="font-mono font-bold text-slate-900">75.0 g / 100.0 g (75.0%)</span>
+                            <span id="stockBarLabel" class="font-mono font-bold text-slate-900">0.0 g / 0.0 g (0.0%)</span>
                         </div>
                         <div class="w-full h-4 bg-slate-200 rounded-full overflow-hidden p-0.5 border border-slate-300/70">
-                            <div id="stockProgressBar" class="h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-300" style="width: 75%;"></div>
+                            <div id="stockProgressBar" class="h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-300" style="width: 0%;"></div>
                         </div>
                         <div class="flex justify-between text-[11px] font-mono text-slate-500">
                             <span>Empty (0g)</span>
-                            <span>25% Reorder Alert</span>
-                            <span>Full (<span id="gaugeMaxLabel">100</span>g)</span>
+                            <span>20% Reorder Alert</span>
+                            <span>Full (<span id="gaugeMaxLabel">0</span>g)</span>
                         </div>
                     </div>
 
@@ -508,13 +508,13 @@
                     <div class="grid grid-cols-2 gap-3">
                         <div class="p-3.5 rounded-xl border border-slate-200 bg-white">
                             <div class="text-[11px] font-semibold uppercase text-slate-400">20% Reorder Date</div>
-                            <div id="reorderDateOutput" class="font-mono text-sm font-bold text-amber-600 mt-1">2027-03-15</div>
-                            <div id="reorderDaysOutput" class="text-[11px] font-mono text-slate-500 mt-0.5">In 114 days</div>
+                            <div id="reorderDateOutput" class="font-mono text-sm font-bold text-amber-600 mt-1">—</div>
+                            <div id="reorderDaysOutput" class="text-[11px] font-mono text-slate-500 mt-0.5">Awaiting input</div>
                         </div>
                         <div class="p-3.5 rounded-xl border border-sky-200 bg-sky-50/60">
                             <div class="text-[11px] font-semibold uppercase text-sky-700">0% Empty Date</div>
-                            <div id="emptyDateOutput" class="font-mono text-sm font-bold text-slate-900 mt-1">2027-04-26</div>
-                            <div id="emptyDaysOutput" class="text-[11px] font-mono text-sky-700 mt-0.5">156.3 days exact</div>
+                            <div id="emptyDateOutput" class="font-mono text-sm font-bold text-slate-900 mt-1">—</div>
+                            <div id="emptyDaysOutput" class="text-[11px] font-mono text-sky-700 mt-0.5">Awaiting input</div>
                         </div>
                     </div>
 
@@ -528,44 +528,52 @@
                                 What-If Savings Simulator
                             </span>
                             <span id="simReductionBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/40 font-mono text-xs font-bold text-emerald-300">
-                                -20% Flow
+                                -0% Flow
                             </span>
                         </div>
                         <p class="text-[11px] text-emerald-200/80">
                             Simulate switching to a narrower nozzle or shorter daily dispense:
                         </p>
-                        <input id="simReductionSlider" type="range" min="5" max="60" step="5" value="20" class="w-full cursor-pointer accent-emerald-400">
+                        <input id="simReductionSlider" type="range" min="0" max="60" step="5" value="0" class="w-full cursor-pointer accent-emerald-400">
                         <div class="grid grid-cols-2 gap-2 pt-1 text-xs font-mono">
                             <div class="bg-emerald-900/60 px-2.5 py-2 rounded-lg border border-emerald-800">
                                 <div class="text-[10px] text-emerald-300 uppercase">New Daily Use</div>
-                                <div class="font-bold text-white mt-0.5"><span id="simNewRateOutput">0.38</span> g/day</div>
+                                <div class="font-bold text-white mt-0.5"><span id="simNewRateOutput">0.00</span> g/day</div>
                             </div>
                             <div class="bg-emerald-900/60 px-2.5 py-2 rounded-lg border border-emerald-800">
                                 <div class="text-[10px] text-emerald-300 uppercase">Lifespan Gain</div>
-                                <div class="font-bold text-emerald-300 mt-0.5">+<span id="simExtraDaysOutput">39</span> days (<span id="simNewLifespanOutput">260</span>d total)</div>
+                                <div class="font-bold text-emerald-300 mt-0.5">+<span id="simExtraDaysOutput">0</span> days (<span id="simNewLifespanOutput">0</span>d total)</div>
                             </div>
                         </div>
                     </div>
                 </div>
+                    <div class="flex flex-col lg:flex-row gap-3 items-stretch lg:items-end">
+                        <div class="sm:w-48">
+                            <label for="contributorNameInput" class="block text-xs font-semibold text-slate-700 mb-1">
+                                Your Name / Alias
+                            </label>
+                            <input id="contributorNameInput" type="text" value="" placeholder="Enter your name" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        </div>
 
-                <!-- Right Depletion Projection Chart (7 cols) -->
-                <div class="lg:col-span-7 bg-slate-950 rounded-xl p-4 border border-slate-800 shadow-inner">
-                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
-                        <div>
-                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-200">Projected Mass Depletion Curve</h3>
-                            <p class="text-[11px] text-slate-400">Linear drawdown trajectory from start date to container exhaustion</p>
+                        <div class="flex-1">
+                            <label for="savingsTipInput" class="block text-xs font-semibold text-slate-700 mb-1">
+                                Consumption / Savings Note (How did you optimize usage?)
+                            </label>
+                            <input id="savingsTipInput" type="text" value="" placeholder="Share how you reduced hole size or daily usage..." class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
                         </div>
-                        <div class="flex items-center gap-3 text-[11px] font-mono">
-                            <span class="flex items-center gap-1.5 text-sky-400">
-                                <span class="w-2.5 h-0.5 bg-sky-400 inline-block"></span> Stock (g)
-                            </span>
-                            <span class="flex items-center gap-1.5 text-amber-400">
-                                <span class="w-2.5 h-0.5 bg-amber-400 inline-block border-t border-dashed"></span> 20% Reorder
-                            </span>
-                        </div>
+
+                        <button id="btnPublishLogbook" type="button" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition flex items-center justify-center gap-2 shrink-0">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                            </svg>
+                            <span>Publish Calculation to Logbook</span>
+                        </button>
                     </div>
-                    <div id="chartContainer" class="w-full h-56 sm:h-64 relative">
-                        <canvas id="depletionChart" class="w-full h-full block"></canvas>
+                    <div class="mt-2 flex flex-wrap items-center gap-3 text-[11px] font-mono text-slate-500">
+                        <span>Will publish snapshot:</span>
+                        <span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700" id="publishPreviewBadge">
+                            Awaiting inputs
+                        </span>
                     </div>
                 </div>
             </div>
@@ -711,13 +719,13 @@
             'use strict';
 
             // =========================================================================
-            // APPLICATION STATE
+            // APPLICATION STATE (BLANK / UN-PREDEFINED BY DEFAULT)
             // =========================================================================
             const state = {
                 // Hole Measurement State
                 holeSource: 'optical', // 'optical' | 'manual'
-                manualDiameterMm: 4.20,
-                referenceMm: 15.0,
+                manualDiameterMm: 0,
+                referenceMm: 0,
                 ruler: {
                     p1: { x: 0.25, y: 0.78 },
                     p2: { x: 0.55, y: 0.78 }
@@ -725,30 +733,25 @@
                 circle: {
                     cx: 0.50,
                     cy: 0.45,
-                    rNorm: 0.085
+                    rNorm: 0
                 },
                 interactionMode: 'both',
                 uploadedImage: null,
 
                 // Material & Consumption State
-                productName: 'Mint Fluoride Toothpaste',
-                materialType: 'paste', // 'paste' | 'powder'
-                density: 1.38,         // g/cm^3
-                dispenseLengthMm: 25,  // mm/day
-                packingEfficiency: 100,// %
-                rateSource: 'model',   // 'model' | 'log'
-                usageLogs: [
-                    { id: 1, date: '2026-11-17', grams: 0.51 },
-                    { id: 2, date: '2026-11-18', grams: 0.49 },
-                    { id: 3, date: '2026-11-19', grams: 0.55 },
-                    { id: 4, date: '2026-11-20', grams: 0.53 }
-                ],
+                productName: '',
+                materialType: null, // 'paste' | 'powder' | null
+                density: 0,         // g/cm^3
+                dispenseLengthMm: 0,// mm/day
+                packingEfficiency: 0,// %
+                rateSource: 'model',// 'model' | 'log'
+                usageLogs: [],
 
                 // Inventory & Forecast State
-                totalWeightG: 100.0,
-                remainingWeightG: 75.0,
-                startDate: '2026-11-21',
-                simReductionPct: 20,
+                totalWeightG: 0,
+                remainingWeightG: 0,
+                startDate: '',
+                simReductionPct: 0,
 
                 // Shared Community Logbook State
                 communityEntries: [],
@@ -935,9 +938,10 @@
             }
 
             function addDaysToIsoDate(isoDateStr, daysToAdd) {
+                if (!isoDateStr) return '—';
                 const parts = isoDateStr.split('-').map(Number);
                 if (parts.length !== 3 || isNaN(parts[0])) {
-                    return 'Invalid Date';
+                    return '—';
                 }
                 const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
                 dt.setUTCDate(dt.getUTCDate() + Math.ceil(daysToAdd));
@@ -1211,10 +1215,10 @@
                 const y2 = state.ruler.p2.y * h;
                 const rulerPx = Math.max(1, Math.hypot(x2 - x1, y2 - y1));
 
-                const circleRadiusPx = Math.max(4, state.circle.rNorm * minDim);
+                const circleRadiusPx = Math.max(0, state.circle.rNorm * minDim);
                 const circleDiameterPx = circleRadiusPx * 2;
 
-                const mmPerPx = state.referenceMm / rulerPx;
+                const mmPerPx = state.referenceMm > 0 ? state.referenceMm / rulerPx : 0;
                 const diameterMm = circleDiameterPx * mmPerPx;
                 const areaMm2 = Math.PI * Math.pow(diameterMm / 2, 2);
 
@@ -1240,7 +1244,7 @@
                         radiusMm: optical.diameterMm / 2
                     };
                 } else {
-                    const d = Math.max(0.05, state.manualDiameterMm);
+                    const d = Math.max(0, state.manualDiameterMm);
                     const r = d / 2;
                     return {
                         diameterMm: d,
@@ -1255,8 +1259,8 @@
                 // Volume in mm^3 = Area (mm^2) * Length (mm/day)
                 const volumeMm3 = geom.areaMm2 * Math.max(0, state.dispenseLengthMm);
                 const volumeCm3 = volumeMm3 / 1000.0;
-                const eff = Math.max(0.01, state.packingEfficiency / 100.0);
-                const gramsPerDay = volumeCm3 * Math.max(0.01, state.density) * eff;
+                const eff = Math.max(0, state.packingEfficiency / 100.0);
+                const gramsPerDay = volumeCm3 * Math.max(0, state.density) * eff;
                 return {
                     volumeMm3,
                     volumeCm3: volumeCm3 * eff,
@@ -1429,10 +1433,12 @@
                 ctx.save();
                 ctx.globalAlpha = circleAlpha;
 
+                const drawR = Math.max(8 * dpr, m.circleRadiusPx);
+
                 // Translucent cyan fill
                 ctx.fillStyle = 'rgba(56, 189, 248, 0.16)';
                 ctx.beginPath();
-                ctx.arc(m.cx, m.cy, m.circleRadiusPx, 0, Math.PI * 2);
+                ctx.arc(m.cx, m.cy, drawR, 0, Math.PI * 2);
                 ctx.fill();
 
                 // Dashed precision perimeter
@@ -1446,10 +1452,10 @@
                 ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
                 ctx.lineWidth = 1 * dpr;
                 ctx.beginPath();
-                ctx.moveTo(m.cx - m.circleRadiusPx - 8 * dpr, m.cy);
-                ctx.lineTo(m.cx + m.circleRadiusPx + 8 * dpr, m.cy);
-                ctx.moveTo(m.cx, m.cy - m.circleRadiusPx - 8 * dpr);
-                ctx.lineTo(m.cx, m.cy + m.circleRadiusPx + 8 * dpr);
+                ctx.moveTo(m.cx - drawR - 8 * dpr, m.cy);
+                ctx.lineTo(m.cx + drawR + 8 * dpr, m.cy);
+                ctx.moveTo(m.cx, m.cy - drawR - 8 * dpr);
+                ctx.lineTo(m.cx, m.cy + drawR + 8 * dpr);
                 ctx.stroke();
 
                 // Center move handle
@@ -1462,7 +1468,7 @@
                 ctx.stroke();
 
                 // Rim resize handle (at 0 radians / right edge)
-                const rimX = m.cx + m.circleRadiusPx;
+                const rimX = m.cx + drawR;
                 const rimY = m.cy;
                 ctx.fillStyle = '#10b981'; // emerald-500
                 ctx.beginPath();
@@ -1476,7 +1482,7 @@
                 const holeLabel = `Ø ${m.diameterMm.toFixed(2)} mm`;
                 ctx.font = `700 ${11 * dpr}px "JetBrains Mono", monospace`;
                 const hTextW = ctx.measureText(holeLabel).width;
-                const badgeY = Math.max(24 * dpr, m.cy - m.circleRadiusPx - 12 * dpr);
+                const badgeY = Math.max(24 * dpr, m.cy - drawR - 12 * dpr);
                 ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
                 ctx.fillRect(m.cx - hTextW / 2 - 6 * dpr, badgeY - 11 * dpr, hTextW + 12 * dpr, 16 * dpr);
                 ctx.fillStyle = '#38bdf8';
@@ -1570,7 +1576,8 @@
                 const canCircle = state.interactionMode === 'both' || state.interactionMode === 'circle';
 
                 // Priority 1: Circle Rim Resize Handle
-                if (canCircle && Math.hypot(pos.x - (m.cx + m.circleRadiusPx), pos.y - m.cy) <= hitRadius) {
+                const effectiveR = Math.max(8 * dpr, m.circleRadiusPx);
+                if (canCircle && Math.hypot(pos.x - (m.cx + effectiveR), pos.y - m.cy) <= hitRadius) {
                     dragTarget = 'circleRim';
                     evt.preventDefault();
                     return;
@@ -1655,7 +1662,7 @@
 
                 const maxWeight = Math.max(state.totalWeightG, state.remainingWeightG, 1);
                 const finiteDays = isFinite(daysRemaining) && daysRemaining > 0 ? Math.min(daysRemaining, 3650) : 30;
-
+                const axisStartDate = state.startDate || new Date().toISOString().slice(0, 10);
                 // Horizontal grid lines & Y-axis labels
                 ctx.font = `${10 * dpr}px "JetBrains Mono", monospace`;
                 ctx.textAlign = 'right';
@@ -1751,7 +1758,7 @@
                     const frac = i / xTicks;
                     const tx = padLeft + plotW * frac;
                     const dOffset = Math.round(finiteDays * frac);
-                    const dateStr = addDaysToIsoDate(state.startDate, dOffset);
+                    const dateStr = addDaysToIsoDate(axisStartDate, dOffset);
                     ctx.fillText(dateStr, tx, padTop + plotH + 18 * dpr);
                 }
             }
@@ -1798,7 +1805,7 @@
 
                 if (state.holeSource === 'optical') {
                     state.manualDiameterMm = Number(optical.diameterMm.toFixed(2));
-                    els.manualDiameterInput.value = state.manualDiameterMm.toFixed(2);
+                    els.manualDiameterInput.value = optical.diameterMm > 0 ? state.manualDiameterMm.toFixed(2) : '';
                     els.srcOpticalBtn.className = 'py-1.5 px-2 rounded-md text-xs font-semibold bg-white text-slate-900 shadow-sm transition';
                     els.srcManualBtn.className = 'py-1.5 px-2 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
                     els.kpiHoleSourceBadge.textContent = 'OPTICAL';
@@ -1821,11 +1828,16 @@
                     els.matPasteBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-sky-600';
                     els.matPowderBtn.className = 'p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition';
                     els.matPowderBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-slate-300';
-                } else {
+                } else if (state.materialType === 'powder') {
                     els.matPowderBtn.className = 'p-3 rounded-xl border-2 border-amber-500 bg-amber-50/70 text-left transition';
                     els.matPowderBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
                     els.matPasteBtn.className = 'p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition';
                     els.matPasteBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-slate-300';
+                } else {
+                    els.matPasteBtn.className = 'p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition';
+                    els.matPasteBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-slate-300';
+                    els.matPowderBtn.className = 'p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition';
+                    els.matPowderBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-slate-300';
                 }
 
                 els.packingSlider.value = state.packingEfficiency;
@@ -1864,21 +1876,21 @@
                 renderUsageLogs();
 
                 // 3. Depletion Predictor & Gauge Sync
-                const totalW = Math.max(0.1, state.totalWeightG);
+                const totalW = Math.max(0, state.totalWeightG);
                 const remW = Math.max(0, state.remainingWeightG);
-                const pct = Math.min(100, Math.max(0, (remW / totalW) * 100));
+                const pct = totalW > 0 ? Math.min(100, Math.max(0, (remW / totalW) * 100)) : 0;
 
                 els.kpiStockPctBadge.textContent = `${pct.toFixed(0)}% LEFT`;
                 els.kpiStockGrams.textContent = remW.toFixed(1);
                 els.kpiTotalGrams.textContent = totalW.toFixed(1);
-                els.kpiStartDateDisplay.textContent = state.startDate;
+                els.kpiStartDateDisplay.textContent = state.startDate || '—';
 
                 els.stockBarLabel.textContent = `${remW.toFixed(1)} g / ${totalW.toFixed(1)} g (${pct.toFixed(1)}%)`;
                 els.gaugeMaxLabel.textContent = totalW.toFixed(0);
                 els.stockProgressBar.style.width = `${pct}%`;
 
                 // Color shift progress bar when low
-                if (pct <= 20) {
+                if (totalW > 0 && pct <= 20) {
                     els.stockProgressBar.className = 'h-full rounded-full bg-gradient-to-r from-rose-600 to-amber-500 transition-all duration-300';
                 } else {
                     els.stockProgressBar.className = 'h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-300';
@@ -1889,7 +1901,7 @@
                 // Update What-If Savings Simulator
                 const simPct = state.simReductionPct;
                 els.simReductionBadge.textContent = `-${simPct}% Flow`;
-                if (rate > 0) {
+                if (rate > 0 && simPct > 0 && totalW > 0) {
                     const simNewRate = rate * (1 - simPct / 100);
                     const baseFullDays = Math.ceil(totalW / rate);
                     const simFullDays = Math.ceil(totalW / simNewRate);
@@ -1898,16 +1910,24 @@
                     els.simExtraDaysOutput.textContent = extraDays.toString();
                     els.simNewLifespanOutput.textContent = simFullDays.toString();
                 } else {
-                    els.simNewRateOutput.textContent = '0.00';
+                    els.simNewRateOutput.textContent = rate > 0 ? rate.toFixed(2) : '0.00';
                     els.simExtraDaysOutput.textContent = '0';
-                    els.simNewLifespanOutput.textContent = '0';
+                    els.simNewLifespanOutput.textContent = rate > 0 && totalW > 0 ? Math.ceil(totalW / rate).toString() : '0';
                 }
 
                 // Update Publish Snapshot Preview Badge
-                const fullLifespanPreview = rate > 0 ? Math.ceil(totalW / rate) : 0;
-                els.publishPreviewBadge.textContent = `${state.productName || 'Product'} • Net: ${totalW.toFixed(0)}g • Hole: ${geom.diameterMm.toFixed(2)}mm • ${rate.toFixed(2)} g/day • Lifespan: ${fullLifespanPreview} days`;
+                const fullLifespanPreview = rate > 0 && totalW > 0 ? Math.ceil(totalW / rate) : 0;
+                els.publishPreviewBadge.textContent = `${state.productName || 'Unnamed Product'} • Net: ${totalW.toFixed(0)}g • Hole: ${geom.diameterMm.toFixed(2)}mm • ${rate.toFixed(2)} g/day • Lifespan: ${fullLifespanPreview} days`;
 
-                if (remW <= 0) {
+                if (totalW <= 0 || rate <= 0 || !state.startDate) {
+                    els.kpiDaysLeft.textContent = '—';
+                    els.kpiFinishDate.textContent = '—';
+                    els.emptyDateOutput.textContent = '—';
+                    els.emptyDaysOutput.textContent = 'Enter qty, rate & start date';
+                    els.reorderDateOutput.textContent = '—';
+                    els.reorderDaysOutput.textContent = 'Enter qty, rate & start date';
+                    drawDepletionChart(0, 0, 0);
+                } else if (remW <= 0) {
                     els.kpiDaysLeft.textContent = '0';
                     els.kpiFinishDate.textContent = state.startDate;
                     els.emptyDateOutput.textContent = state.startDate;
@@ -1915,14 +1935,6 @@
                     els.reorderDateOutput.textContent = state.startDate;
                     els.reorderDaysOutput.textContent = 'Reorder immediately';
                     drawDepletionChart(0, 0, rate);
-                } else if (rate <= 0) {
-                    els.kpiDaysLeft.textContent = '∞';
-                    els.kpiFinishDate.textContent = 'No Usage';
-                    els.emptyDateOutput.textContent = '—';
-                    els.emptyDaysOutput.textContent = 'Set consumption > 0';
-                    els.reorderDateOutput.textContent = '—';
-                    els.reorderDaysOutput.textContent = '—';
-                    drawDepletionChart(0, 0, 0);
                 } else {
                     const exactDays = remW / rate;
                     const wholeDays = Math.ceil(exactDays);
@@ -2000,10 +2012,8 @@
 
                 els.referenceMmInput.addEventListener('input', (e) => {
                     const val = parseFloat(e.target.value);
-                    if (val > 0) {
-                        state.referenceMm = val;
-                        syncAllUI();
-                    }
+                    state.referenceMm = !isNaN(val) && val > 0 ? val : 0;
+                    syncAllUI();
                 });
 
                 els.btnAutoDetectHole.addEventListener('click', autoSnapToDarkOrifice);
@@ -2020,48 +2030,34 @@
 
                 els.manualDiameterInput.addEventListener('input', (e) => {
                     const val = parseFloat(e.target.value);
-                    if (val > 0) {
-                        state.manualDiameterMm = val;
-                        state.holeSource = 'manual';
-                        syncAllUI();
-                    }
+                    state.manualDiameterMm = !isNaN(val) && val > 0 ? val : 0;
+                    state.holeSource = 'manual';
+                    syncAllUI();
                 });
 
                 // Material Rheology Presets (Paste vs Powder)
                 els.matPasteBtn.addEventListener('click', () => {
                     state.materialType = 'paste';
                     state.packingEfficiency = 100;
-                    if (state.density < 0.9) {
-                        state.density = 1.38;
-                        els.densityInput.value = '1.38';
-                    }
                     syncAllUI();
                 });
 
                 els.matPowderBtn.addEventListener('click', () => {
                     state.materialType = 'powder';
                     state.packingEfficiency = 65;
-                    if (state.density > 1.2) {
-                        state.density = 0.85;
-                        els.densityInput.value = '0.85';
-                    }
                     syncAllUI();
                 });
 
                 els.densityInput.addEventListener('input', (e) => {
                     const val = parseFloat(e.target.value);
-                    if (val > 0) {
-                        state.density = val;
-                        syncAllUI();
-                    }
+                    state.density = !isNaN(val) && val > 0 ? val : 0;
+                    syncAllUI();
                 });
 
                 els.dispenseLengthInput.addEventListener('input', (e) => {
                     const val = parseFloat(e.target.value);
-                    if (val >= 0) {
-                        state.dispenseLengthMm = val;
-                        syncAllUI();
-                    }
+                    state.dispenseLengthMm = !isNaN(val) && val >= 0 ? val : 0;
+                    syncAllUI();
                 });
 
                 els.packingSlider.addEventListener('input', (e) => {
@@ -2144,39 +2140,54 @@
 
                 els.totalWeightInput.addEventListener('input', (e) => {
                     const val = parseFloat(e.target.value);
-                    if (val > 0) {
-                        state.totalWeightG = val;
-                        syncAllUI();
-                    }
+                    state.totalWeightG = !isNaN(val) && val > 0 ? val : 0;
+                    syncAllUI();
                 });
 
                 els.remainingWeightInput.addEventListener('input', (e) => {
                     const val = parseFloat(e.target.value);
-                    if (val >= 0) {
-                        state.remainingWeightG = val;
-                        syncAllUI();
-                    }
-                });
-
-                els.startDateInput.addEventListener('change', (e) => {
-                    if (e.target.value) {
-                        state.startDate = e.target.value;
-                        syncAllUI();
-                    }
-                });
-
-                // Savings Simulator Slider
-                els.simReductionSlider.addEventListener('input', (e) => {
-                    state.simReductionPct = parseInt(e.target.value, 10);
+                    state.remainingWeightG = !isNaN(val) && val >= 0 ? val : 0;
                     syncAllUI();
                 });
 
-                // Community Logbook Publish, Filter, Sort & Load Preset
-                els.btnPublishLogbook.addEventListener('click', publishCurrentCalculation);
+                els.startDateInput.addEventListener('change', (e) => {
+                    state.startDate = e.target.value || '';
+                    syncAllUI();
+                });
+                // Clear All Inputs (Reset button)
+                els.btnLoadSample.addEventListener('click', () => {
+                    state.uploadedImage = null;
+                    state.holeSource = 'optical';
+                    state.referenceMm = 0;
+                    state.manualDiameterMm = 0;
+                    state.ruler = { p1: { x: 0.25, y: 0.78 }, p2: { x: 0.55, y: 0.78 } };
+                    state.circle = { cx: 0.50, cy: 0.45, rNorm: 0 };
+                    state.productName = '';
+                    state.materialType = null;
+                    state.density = 0;
+                    state.dispenseLengthMm = 0;
+                    state.packingEfficiency = 0;
+                    state.rateSource = 'model';
+                    state.usageLogs = [];
+                    state.totalWeightG = 0;
+                    state.remainingWeightG = 0;
+                    state.startDate = '';
+                    state.simReductionPct = 0;
 
-                els.logbookSearchInput.addEventListener('input', (e) => {
-                    state.logbookSearch = e.target.value;
-                    renderCommunityLogbook();
+                    els.productNameInput.value = '';
+                    els.referenceMmInput.value = '';
+                    els.manualDiameterInput.value = '';
+                    els.densityInput.value = '';
+                    els.dispenseLengthInput.value = '';
+                    els.totalWeightInput.value = '';
+                    els.remainingWeightInput.value = '';
+                    els.startDateInput.value = '';
+                    els.newLogDateInput.value = '';
+                    els.newLogGramsInput.value = '';
+                    els.simReductionSlider.value = '0';
+
+                    syncAllUI();
+                    showToast('Cleared all inputs — enter values to calculate');
                 });
 
                 els.logbookSortSelect.addEventListener('change', (e) => {
@@ -2270,7 +2281,6 @@
 
             // Initialize Application on Load
             window.addEventListener('load', () => {
-                els.newLogDateInput.value = state.startDate;
                 bindEvents();
                 resizeHoleCanvas();
                 syncAllUI();
