@@ -1,0 +1,2282 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Aperture & Depletion Lab — Paste & Powder Consumption Analyzer</title>
+    <!-- Tailwind CSS -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Google Fonts: Inter & JetBrains Mono -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=JetBrains+Mono:wght@400;500;600;700&display=swap" rel="stylesheet">
+    <script>
+        tailwind.config = {
+            theme: {
+                extend: {
+                    fontFamily: {
+                        sans: ['Inter', 'sans-serif'],
+                        mono: ['JetBrains Mono', 'monospace'],
+                    },
+                    colors: {
+                        lab: {
+                            950: '#090d16',
+                            900: '#0f172a',
+                            850: '#162033',
+                            800: '#1e293b',
+                            700: '#334155',
+                        }
+                    }
+                }
+            }
+        }
+    </script>
+    <style>
+        /* Custom Scrollbar & Range Input Styling for Precision Lab Feel */
+        ::-webkit-scrollbar {
+            width: 6px;
+            height: 6px;
+        }
+        ::-webkit-scrollbar-track {
+            background: #f1f5f9;
+        }
+        ::-webkit-scrollbar-thumb {
+            background: #cbd5e1;
+            border-radius: 9999px;
+        }
+        ::-webkit-scrollbar-thumb:hover {
+            background: #94a3b8;
+        }
+        input[type="range"] {
+            accent-color: #0284c7;
+        }
+        .canvas-grid-bg {
+            background-color: #0f172a;
+            background-image: 
+                linear-gradient(to right, rgba(51, 65, 85, 0.35) 1px, transparent 1px),
+                linear-gradient(to bottom, rgba(51, 65, 85, 0.35) 1px, transparent 1px);
+            background-size: 20px 20px;
+        }
+    </style>
+</head>
+<body class="bg-slate-100 text-slate-800 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Top Navigation / Industrial Header -->
+    <header class="bg-lab-900 text-white border-b border-slate-800 sticky top-0 z-30 shadow-md">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 h-16 flex items-center justify-between gap-4">
+            <div class="flex items-center gap-3">
+                <div class="w-9 h-9 rounded-lg bg-sky-500/20 border border-sky-400/40 flex items-center justify-center text-sky-400 shrink-0">
+                    <!-- Precision Caliper / Aperture SVG Icon -->
+                    <svg class="w-5 h-5" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2">
+                        <circle cx="12" cy="12" r="7" />
+                        <circle cx="12" cy="12" r="2" />
+                        <path d="M12 2v3M12 19v3M2 12h3M19 12h3" />
+                    </svg>
+                </div>
+                <div>
+                    <div class="flex items-center gap-2">
+                        <h1 class="font-bold text-base sm:text-lg tracking-tight">Nozzle & Consumable Analyzer</h1>
+                        <span class="hidden sm:inline-flex items-center px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-sky-500/20 text-sky-300 border border-sky-500/30">
+                            SHARED LOGBOOK
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 hidden sm:block">Orifice Metrology, Editable Product Net Qty, Savings Simulator & Community Reference</p>
+                </div>
+            </div>
+
+            <div class="flex items-center gap-2 sm:gap-3">
+                <a href="#communityLogbookSection" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-emerald-600/20 hover:bg-emerald-600/30 text-emerald-300 border border-emerald-500/40 transition flex items-center gap-1.5">
+                    <span class="w-2 h-2 rounded-full bg-emerald-400 animate-pulse"></span>
+                    <span>Community Logbook</span>
+                </a>
+                <button id="btnLoadSample" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-slate-800 hover:bg-slate-700 text-slate-200 border border-slate-700 transition flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5 text-amber-400" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M19.428 15.428a2 2 0 00-1.022-.547l-2.387-.477a6 6 0 00-3.86.517l-.318.158a6 6 0 01-3.86.517L6.05 15.21a2 2 0 00-1.806.547M8 4h8l-1 1v5.172a2 2 0 00.586 1.414l5 5c1.26 1.26.367 3.414-1.415 3.414H4.828c-1.782 0-2.674-2.154-1.414-3.414l5-5A2 2 0 009 10.172V5L8 4z" />
+                    </svg>
+                    <span>Reset Sample</span>
+                </button>
+                <button id="btnCopyReport" type="button" class="px-3 py-1.5 rounded-lg text-xs font-medium bg-sky-600 hover:bg-sky-500 text-white shadow-sm transition flex items-center gap-1.5">
+                    <svg class="w-3.5 h-3.5" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" d="M8 5H6a2 2 0 00-2 2v12a2 2 0 002 2h10a2 2 0 002-2v-1M8 5a2 2 0 002 2h2a2 2 0 002-2M8 5a2 2 0 012-2h2a2 2 0 012 2m0 0h2a2 2 0 012 2v3m2 4H10m0 0l3-3m-3 3l3 3" />
+                    </svg>
+                    <span>Copy Summary</span>
+                </button>
+            </div>
+        </div>
+    </header>
+
+    <!-- Non-intrusive Toast Notification Banner -->
+    <div id="toastBanner" class="fixed bottom-4 right-4 z-50 transform translate-y-20 opacity-0 transition-all duration-300 pointer-events-none">
+        <div class="bg-slate-900 text-white px-4 py-3 rounded-xl shadow-xl border border-slate-700 flex items-center gap-2.5 text-sm">
+            <span id="toastDot" class="w-2.5 h-2.5 rounded-full bg-emerald-400"></span>
+            <span id="toastMessage">Action completed</span>
+        </div>
+    </div>
+
+    <!-- Main Dashboard Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-4 sm:px-6 lg:px-8 py-6 space-y-6">
+
+        <!-- Top Executive KPI Strip -->
+        <section aria-label="Key Metrics" class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-4">
+            <!-- KPI 1: Hole Diameter & Area -->
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Output Orifice</span>
+                    <span id="kpiHoleSourceBadge" class="px-2 py-0.5 rounded-md text-[11px] font-mono font-medium bg-sky-50 text-sky-700 border border-sky-200">OPTICAL</span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span id="kpiDiameter" class="text-2xl font-bold font-mono text-slate-900">4.20</span>
+                    <span class="text-xs font-mono text-slate-500">mm Ø</span>
+                </div>
+                <div class="mt-1 text-xs text-slate-500 font-mono">
+                    Area: <strong id="kpiArea" class="text-slate-700">13.85</strong> mm²
+                </div>
+            </div>
+
+            <!-- KPI 2: Active Daily Consumption -->
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Daily Consumption</span>
+                    <span id="kpiRateModeBadge" class="px-2 py-0.5 rounded-md text-[11px] font-mono font-medium bg-amber-50 text-amber-700 border border-amber-200">MODEL</span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span id="kpiDailyRate" class="text-2xl font-bold font-mono text-slate-900">0.48</span>
+                    <span class="text-xs font-mono text-slate-500">g / day</span>
+                </div>
+                <div class="mt-1 text-xs text-slate-500 font-mono">
+                    Vol: <strong id="kpiDailyVol" class="text-slate-700">0.35</strong> cm³/day
+                </div>
+            </div>
+
+            <!-- KPI 3: Days Remaining -->
+            <div class="bg-white rounded-xl p-4 border border-slate-200 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-500">Time Remaining</span>
+                    <span id="kpiStockPctBadge" class="px-2 py-0.5 rounded-md text-[11px] font-mono font-medium bg-emerald-50 text-emerald-700 border border-emerald-200">75% LEFT</span>
+                </div>
+                <div class="mt-2 flex items-baseline gap-2">
+                    <span id="kpiDaysLeft" class="text-2xl font-bold font-mono text-slate-900">156</span>
+                    <span class="text-xs font-mono text-slate-500">days</span>
+                </div>
+                <div class="mt-1 text-xs text-slate-500 font-mono">
+                    Stock: <strong id="kpiStockGrams" class="text-slate-700">75.0</strong> / <span id="kpiTotalGrams">100.0</span> g
+                </div>
+            </div>
+
+            <!-- KPI 4: Estimated Finish Date -->
+            <div class="bg-lab-900 text-white rounded-xl p-4 border border-slate-800 shadow-sm flex flex-col justify-between">
+                <div class="flex items-center justify-between">
+                    <span class="text-xs font-semibold uppercase tracking-wider text-slate-400">Depletion Date</span>
+                    <span class="w-2 h-2 rounded-full bg-sky-400 animate-pulse"></span>
+                </div>
+                <div class="mt-2">
+                    <span id="kpiFinishDate" class="text-xl sm:text-2xl font-bold font-mono text-sky-400">2027-04-26</span>
+                </div>
+                <div class="mt-1 text-xs text-slate-400 font-mono">
+                    From: <span id="kpiStartDateDisplay" class="text-slate-200">2026-11-21</span>
+                </div>
+            </div>
+        </section>
+
+        <!-- Main Workspace Grid: Left = Optical Hole Measurement | Right = Consumption & Depletion -->
+        <div class="grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+
+            <!-- MODULE 1: INTERACTIVE HOLE MEASUREMENT TOOL (7 columns on lg) -->
+            <section class="lg:col-span-7 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+                <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
+                    <div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-6 h-6 rounded-md bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center">01</span>
+                            <h2 class="font-bold text-base text-slate-900">Interactive Hole Measurement Tool</h2>
+                        </div>
+                        <p class="text-xs text-slate-500 mt-0.5">Calibrate scale with the amber ruler, then align the cyan ring over the nozzle orifice.</p>
+                    </div>
+
+                    <!-- Upload Photo Button -->
+                    <label class="cursor-pointer px-3 py-2 rounded-lg bg-white hover:bg-slate-50 text-slate-700 border border-slate-300 text-xs font-semibold shadow-sm transition flex items-center gap-2">
+                        <svg class="w-4 h-4 text-sky-600" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M4 16l4.586-4.586a2 2 0 012.828 0L16 16m-2-2l1.586-1.586a2 2 0 012.828 0L20 14m-6-6h.01M6 20h12a2 2 0 002-2V6a2 2 0 00-2-2H6a2 2 0 00-2 2v12a2 2 0 002 2z" />
+                        </svg>
+                        <span>Upload Nozzle Photo</span>
+                        <input id="photoUploadInput" type="file" accept="image/*" class="hidden">
+                    </label>
+                </div>
+
+                <!-- Interactive Tool Mode Selector & Scale Bar -->
+                <div class="px-4 sm:px-5 py-3 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-3 border-b border-slate-800">
+                    <div class="flex items-center gap-1.5 bg-slate-800 p-1 rounded-lg border border-slate-700">
+                        <button id="toolModeBoth" type="button" class="px-2.5 py-1.5 rounded-md text-xs font-medium bg-sky-600 text-white transition">
+                            Interact All
+                        </button>
+                        <button id="toolModeRuler" type="button" class="px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white transition">
+                            1. Set Scale Ruler
+                        </button>
+                        <button id="toolModeCircle" type="button" class="px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white transition">
+                            2. Fit Hole Circle
+                        </button>
+                    </div>
+
+                    <div class="flex items-center gap-2">
+                        <label for="referenceMmInput" class="text-xs font-mono text-amber-300 whitespace-nowrap">Ref Ruler (mm):</label>
+                        <input id="referenceMmInput" type="number" step="0.1" min="0.1" value="15.0" class="w-20 px-2 py-1 rounded bg-slate-800 border border-amber-500/50 text-amber-300 font-mono text-xs font-semibold focus:outline-none focus:border-amber-400">
+                        <button id="btnAutoDetectHole" type="button" title="Scan dark opening near circle center" class="px-2.5 py-1 rounded bg-slate-800 hover:bg-slate-700 border border-slate-600 text-xs font-mono text-sky-300 transition">
+                            Auto-Snap
+                        </button>
+                    </div>
+                </div>
+
+                <!-- Responsive Interactive Metrology Canvas -->
+                <div id="canvasWrapper" class="relative w-full h-[340px] sm:h-[400px] canvas-grid-bg overflow-hidden select-none touch-none">
+                    <canvas id="holeCanvas" class="w-full h-full block cursor-crosshair"></canvas>
+
+                    <!-- Floating Live HUD Readout inside Canvas -->
+                    <div class="absolute top-3 left-3 bg-slate-950/85 backdrop-blur-md border border-slate-700/80 rounded-lg px-3 py-2 text-xs font-mono text-slate-200 pointer-events-none space-y-1 shadow-lg">
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-amber-400"></span>
+                            <span>Scale: <strong id="hudScalePx" class="text-amber-300">150.0</strong> px = <strong id="hudScaleMm" class="text-amber-300">15.0</strong> mm</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-sky-400"></span>
+                            <span>Hole Ø: <strong id="hudHoleDiam" class="text-sky-300">4.20</strong> mm (<span id="hudHolePx">42.0</span> px)</span>
+                        </div>
+                        <div class="flex items-center gap-2">
+                            <span class="w-2 h-2 rounded-full bg-emerald-400"></span>
+                            <span>Area: <strong id="hudHoleArea" class="text-emerald-300">13.85</strong> mm²</span>
+                        </div>
+                    </div>
+
+                    <!-- Subtle Canvas Instruction Pill -->
+                    <div class="absolute bottom-3 left-3 right-3 flex flex-wrap items-center justify-between gap-2 pointer-events-none">
+                        <span class="bg-slate-950/80 text-slate-300 text-[11px] px-2.5 py-1 rounded-md border border-slate-800">
+                            Drag <span class="text-amber-400 font-semibold">Amber endpoints</span> for reference scale • Drag <span class="text-sky-400 font-semibold">Cyan center</span> to move or <span class="text-sky-400 font-semibold">rim handle</span> to resize
+                        </span>
+                    </div>
+                </div>
+
+                <!-- Manual Override & Fine-Tuning Footer -->
+                <div class="p-4 sm:p-5 bg-slate-50 border-t border-slate-200 grid grid-cols-1 sm:grid-cols-3 gap-4 items-end">
+                    <div>
+                        <label class="flex items-center justify-between text-xs font-semibold text-slate-700 mb-1.5">
+                            <span>Measurement Source</span>
+                        </label>
+                        <div class="grid grid-cols-2 gap-1 bg-slate-200/80 p-1 rounded-lg">
+                            <button id="srcOpticalBtn" type="button" class="py-1.5 px-2 rounded-md text-xs font-semibold bg-white text-slate-900 shadow-sm transition">
+                                Canvas Optical
+                            </button>
+                            <button id="srcManualBtn" type="button" class="py-1.5 px-2 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                                Manual Input
+                            </button>
+                        </div>
+                    </div>
+
+                    <div>
+                        <label for="manualDiameterInput" class="block text-xs font-semibold text-slate-700 mb-1.5">
+                            Hole Diameter (mm)
+                        </label>
+                        <div class="relative">
+                            <input id="manualDiameterInput" type="number" step="0.05" min="0.1" max="200" value="4.20" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <span class="absolute right-3 top-2 text-xs font-mono text-slate-400">mm</span>
+                        </div>
+                    </div>
+
+                    <div class="bg-white px-3.5 py-2 rounded-lg border border-slate-200 flex items-center justify-between">
+                        <div>
+                            <div class="text-[11px] uppercase font-semibold text-slate-400">Cross-Section Area</div>
+                            <div class="font-mono text-sm font-bold text-slate-900"><span id="panelAreaReadout">13.85</span> mm²</div>
+                        </div>
+                        <div class="text-right">
+                            <div class="text-[11px] uppercase font-semibold text-slate-400">Radius</div>
+                            <div class="font-mono text-xs font-semibold text-slate-600"><span id="panelRadiusReadout">2.10</span> mm</div>
+                        </div>
+                    </div>
+                </div>
+            </section>
+
+            <!-- MODULE 2: PASTE VS POWDER CONSUMPTION CALCULATOR & DAILY LOG (5 columns on lg) -->
+            <section class="lg:col-span-5 bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden flex flex-col">
+                <div class="p-4 sm:p-5 border-b border-slate-200 bg-slate-50/70">
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-md bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center">02</span>
+                        <h2 class="font-bold text-base text-slate-900">Consumption Rate Engine</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">Calculate theoretical extrusion/flow mass or log daily weights.</p>
+                </div>
+
+                <div class="p-4 sm:p-5 space-y-5">
+                    <!-- Material Type Selector: Paste vs Powder -->
+                    <div>
+                        <label class="block text-xs font-semibold uppercase tracking-wider text-slate-500 mb-2">Material Rheology</label>
+                        <div class="grid grid-cols-2 gap-2.5">
+                            <button id="matPasteBtn" type="button" class="p-3 rounded-xl border-2 border-sky-600 bg-sky-50/70 text-left transition">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-slate-900">Paste / Gel</span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-sky-600"></span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">Continuous cylinder flow (~95–100% fill)</p>
+                            </button>
+
+                            <button id="matPowderBtn" type="button" class="p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition">
+                                <div class="flex items-center justify-between">
+                                    <span class="font-bold text-sm text-slate-900">Powder / Granule</span>
+                                    <span class="w-2.5 h-2.5 rounded-full bg-slate-300"></span>
+                                </div>
+                                <p class="text-[11px] text-slate-600 mt-1">Aerated bulk flow (~55–75% packing)</p>
+                            </button>
+                        </div>
+                    </div>
+
+                    <!-- Physics Parameters Grid -->
+                    <div class="grid grid-cols-1 sm:grid-cols-2 gap-3.5">
+                        <div>
+                            <label for="densityInput" class="block text-xs font-semibold text-slate-700 mb-1">
+                                Material Density
+                            </label>
+                            <div class="relative">
+                                <input id="densityInput" type="number" step="0.05" min="0.05" max="25" value="1.38" class="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <span class="absolute right-2.5 top-2.5 text-[11px] font-mono text-slate-400">g/cm³</span>
+                            </div>
+                        </div>
+
+                        <div>
+                            <label for="dispenseLengthInput" class="block text-xs font-semibold text-slate-700 mb-1">
+                                Daily Dispense Length
+                            </label>
+                            <div class="relative">
+                                <input id="dispenseLengthInput" type="number" step="1" min="0" max="10000" value="25" class="w-full px-3 py-2 rounded-lg border border-slate-300 font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <span class="absolute right-2.5 top-2.5 text-[11px] font-mono text-slate-400">mm/day</span>
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Packing Efficiency / Bulk Density Factor Slider -->
+                    <div class="bg-slate-50 p-3.5 rounded-xl border border-slate-200">
+                        <div class="flex items-center justify-between mb-1.5">
+                            <label for="packingSlider" class="text-xs font-semibold text-slate-700">
+                                Packing Efficiency / Fill Factor
+                            </label>
+                            <span id="packingValueDisplay" class="font-mono text-xs font-bold px-2 py-0.5 rounded bg-white border border-slate-200 text-sky-700">100%</span>
+                        </div>
+                        <input id="packingSlider" type="range" min="30" max="100" step="1" value="100" class="w-full cursor-pointer">
+                        <div class="flex justify-between text-[10px] font-mono text-slate-400 mt-1">
+                            <span>30% (Fine Powder)</span>
+                            <span>65% (Tapped)</span>
+                            <span>100% (Solid Paste)</span>
+                        </div>
+                    </div>
+
+                    <!-- Calculated Theoretical Output Callout -->
+                    <div class="p-3.5 rounded-xl bg-slate-900 text-white flex items-center justify-between gap-3">
+                        <div>
+                            <div class="text-[11px] uppercase tracking-wider text-slate-400 font-semibold">Orifice Model Estimate</div>
+                            <div class="font-mono text-lg font-bold text-sky-400 mt-0.5">
+                                <span id="modelRateReadout">0.48</span> <span class="text-xs font-normal text-slate-300">g / day</span>
+                            </div>
+                            <div class="text-[11px] font-mono text-slate-400">
+                                (<span id="modelVolumeReadout">346.3</span> mm³ extruded/day)
+                            </div>
+                        </div>
+                        <button id="useModelRateBtn" type="button" class="px-3 py-2 rounded-lg text-xs font-semibold bg-sky-600 text-white hover:bg-sky-500 transition shrink-0">
+                            Active Rate
+                        </button>
+                    </div>
+
+                    <!-- Divider -->
+                    <div class="border-t border-slate-200 pt-4">
+                        <div class="flex items-center justify-between mb-2.5">
+                            <div>
+                                <h3 class="text-xs font-bold uppercase tracking-wider text-slate-700">Actual Daily Usage Log (g)</h3>
+                                <p class="text-[11px] text-slate-500">Record daily weight drops for empirical rolling average.</p>
+                            </div>
+                            <button id="useLogRateBtn" type="button" class="px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition">
+                                Use Log Avg (<span id="logAvgBadgeVal">0.52</span>g)
+                            </button>
+                        </div>
+
+                        <!-- Add New Daily Usage Entry Form -->
+                        <div class="flex items-center gap-2 mb-2.5">
+                            <input id="newLogDateInput" type="date" value="2026-11-21" class="px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            <div class="relative flex-1">
+                                <input id="newLogGramsInput" type="number" step="0.01" min="0.01" placeholder="0.50" class="w-full px-2.5 py-1.5 rounded-lg border border-slate-300 font-mono text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                                <span class="absolute right-2.5 top-1.5 text-[11px] font-mono text-slate-400">g</span>
+                            </div>
+                            <button id="btnAddLog" type="button" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-slate-800 text-white text-xs font-semibold transition shrink-0">
+                                + Add
+                            </button>
+                        </div>
+
+                        <!-- Recorded Entries List -->
+                        <div id="usageLogList" class="max-h-32 overflow-y-auto space-y-1.5 pr-1"></div>
+                    </div>
+                </div>
+            </section>
+        </div>
+
+        <!-- MODULE 3: DEPLETION & FINISH DATE PREDICTOR -->
+        <section class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-slate-50/70">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-md bg-slate-900 text-white font-mono text-xs font-bold flex items-center justify-center">03</span>
+                        <h2 class="font-bold text-base text-slate-900">Depletion & Finish Date Forecast</h2>
+                    </div>
+                    <p class="text-xs text-slate-500 mt-0.5">Configure product net quantity, remaining stock, and tracking start date.</p>
+                </div>
+
+                <!-- Rate Source Toggle Pill -->
+                <div class="flex items-center gap-2 bg-slate-200/80 p-1 rounded-xl">
+                    <button id="forecastSourceModelBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition">
+                        Use Orifice Model Rate
+                    </button>
+                    <button id="forecastSourceLogBtn" type="button" class="px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition">
+                        Use Logged Rolling Avg
+                    </button>
+                </div>
+            </div>
+
+            <div class="p-4 sm:p-6 grid grid-cols-1 lg:grid-cols-12 gap-6 items-start">
+                <!-- Left Inputs & Stock Gauge (5 cols) -->
+                <div class="lg:col-span-5 space-y-4">
+                    <!-- Product Name & Quick Net Qty Presets -->
+                    <div class="p-3.5 rounded-xl bg-slate-50 border border-slate-200 space-y-3">
+                        <div class="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                            <div>
+                                <label for="productNameInput" class="block text-xs font-semibold text-slate-700 mb-1">
+                                    Product Name / Label
+                                </label>
+                                <input id="productNameInput" type="text" value="Mint Fluoride Toothpaste" placeholder="e.g. Whey Protein, Toothpaste" class="w-full px-3 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            </div>
+                            <div>
+                                <label class="block text-xs font-semibold text-slate-700 mb-1">
+                                    Quick Net Qty Presets
+                                </label>
+                                <div class="flex flex-wrap gap-1">
+                                    <button type="button" data-preset-qty="75" class="px-2 py-1.5 rounded bg-white hover:bg-sky-50 border border-slate-300 text-[11px] font-mono font-semibold text-slate-700 transition">75g</button>
+                                    <button type="button" data-preset-qty="100" class="px-2 py-1.5 rounded bg-white hover:bg-sky-50 border border-slate-300 text-[11px] font-mono font-semibold text-slate-700 transition">100g</button>
+                                    <button type="button" data-preset-qty="250" class="px-2 py-1.5 rounded bg-white hover:bg-sky-50 border border-slate-300 text-[11px] font-mono font-semibold text-slate-700 transition">250g</button>
+                                    <button type="button" data-preset-qty="500" class="px-2 py-1.5 rounded bg-white hover:bg-sky-50 border border-slate-300 text-[11px] font-mono font-semibold text-slate-700 transition">500g</button>
+                                    <button type="button" data-preset-qty="1000" class="px-2 py-1.5 rounded bg-white hover:bg-sky-50 border border-slate-300 text-[11px] font-mono font-semibold text-slate-700 transition">1kg</button>
+                                </div>
+                            </div>
+                        </div>
+
+                        <div class="grid grid-cols-1 sm:grid-cols-3 gap-3 pt-1">
+                            <div>
+                                <label for="totalWeightInput" class="block text-xs font-semibold text-slate-700 mb-1">
+                                    Net / Total Qty (g)
+                                </label>
+                                <input id="totalWeightInput" type="number" step="1" min="1" value="100" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            </div>
+
+                            <div>
+                                <div class="flex items-center justify-between mb-1">
+                                    <label for="remainingWeightInput" class="block text-xs font-semibold text-slate-700">
+                                        Remaining (g)
+                                    </label>
+                                    <button id="btnResetRemainingToNet" type="button" title="Set Remaining = Total Net Qty" class="text-[10px] font-mono font-semibold text-sky-600 hover:text-sky-800 underline">
+                                        = Full
+                                    </button>
+                                </div>
+                                <input id="remainingWeightInput" type="number" step="0.5" min="0" value="75" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white font-mono text-sm font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            </div>
+
+                            <div>
+                                <label for="startDateInput" class="block text-xs font-semibold text-slate-700 mb-1">
+                                    Start Date
+                                </label>
+                                <input id="startDateInput" type="date" value="2026-11-21" class="w-full px-2.5 py-2 rounded-lg border border-slate-300 bg-white font-mono text-xs font-semibold text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                            </div>
+                        </div>
+                    </div>
+
+                    <!-- Visual Progress Bar of Remaining Stock -->
+                    <div class="p-4 rounded-xl bg-slate-50 border border-slate-200 space-y-2.5">
+                        <div class="flex items-center justify-between text-xs">
+                            <span class="font-semibold text-slate-700">Container Inventory Level</span>
+                            <span id="stockBarLabel" class="font-mono font-bold text-slate-900">75.0 g / 100.0 g (75.0%)</span>
+                        </div>
+                        <div class="w-full h-4 bg-slate-200 rounded-full overflow-hidden p-0.5 border border-slate-300/70">
+                            <div id="stockProgressBar" class="h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-300" style="width: 75%;"></div>
+                        </div>
+                        <div class="flex justify-between text-[11px] font-mono text-slate-500">
+                            <span>Empty (0g)</span>
+                            <span>25% Reorder Alert</span>
+                            <span>Full (<span id="gaugeMaxLabel">100</span>g)</span>
+                        </div>
+                    </div>
+
+                    <!-- Depletion Milestone Summary Cards -->
+                    <div class="grid grid-cols-2 gap-3">
+                        <div class="p-3.5 rounded-xl border border-slate-200 bg-white">
+                            <div class="text-[11px] font-semibold uppercase text-slate-400">20% Reorder Date</div>
+                            <div id="reorderDateOutput" class="font-mono text-sm font-bold text-amber-600 mt-1">2027-03-15</div>
+                            <div id="reorderDaysOutput" class="text-[11px] font-mono text-slate-500 mt-0.5">In 114 days</div>
+                        </div>
+                        <div class="p-3.5 rounded-xl border border-sky-200 bg-sky-50/60">
+                            <div class="text-[11px] font-semibold uppercase text-sky-700">0% Empty Date</div>
+                            <div id="emptyDateOutput" class="font-mono text-sm font-bold text-slate-900 mt-1">2027-04-26</div>
+                            <div id="emptyDaysOutput" class="text-[11px] font-mono text-sky-700 mt-0.5">156.3 days exact</div>
+                        </div>
+                    </div>
+
+                    <!-- What-If Savings Simulator -->
+                    <div class="p-4 rounded-xl bg-emerald-950 text-white border border-emerald-800/80 space-y-2.5">
+                        <div class="flex items-center justify-between">
+                            <span class="text-xs font-bold uppercase tracking-wider text-emerald-300 flex items-center gap-1.5">
+                                <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                                    <path stroke-linecap="round" stroke-linejoin="round" d="M13 7h8m0 0v8m0-8l-8 8-4-4-6 6" />
+                                </svg>
+                                What-If Savings Simulator
+                            </span>
+                            <span id="simReductionBadge" class="px-2 py-0.5 rounded bg-emerald-500/20 border border-emerald-400/40 font-mono text-xs font-bold text-emerald-300">
+                                -20% Flow
+                            </span>
+                        </div>
+                        <p class="text-[11px] text-emerald-200/80">
+                            Simulate switching to a narrower nozzle or shorter daily dispense:
+                        </p>
+                        <input id="simReductionSlider" type="range" min="5" max="60" step="5" value="20" class="w-full cursor-pointer accent-emerald-400">
+                        <div class="grid grid-cols-2 gap-2 pt-1 text-xs font-mono">
+                            <div class="bg-emerald-900/60 px-2.5 py-2 rounded-lg border border-emerald-800">
+                                <div class="text-[10px] text-emerald-300 uppercase">New Daily Use</div>
+                                <div class="font-bold text-white mt-0.5"><span id="simNewRateOutput">0.38</span> g/day</div>
+                            </div>
+                            <div class="bg-emerald-900/60 px-2.5 py-2 rounded-lg border border-emerald-800">
+                                <div class="text-[10px] text-emerald-300 uppercase">Lifespan Gain</div>
+                                <div class="font-bold text-emerald-300 mt-0.5">+<span id="simExtraDaysOutput">39</span> days (<span id="simNewLifespanOutput">260</span>d total)</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Depletion Projection Chart (7 cols) -->
+                <div class="lg:col-span-7 bg-slate-950 rounded-xl p-4 border border-slate-800 shadow-inner">
+                    <div class="flex flex-wrap items-center justify-between gap-2 mb-3">
+                        <div>
+                            <h3 class="text-xs font-bold uppercase tracking-wider text-slate-200">Projected Mass Depletion Curve</h3>
+                            <p class="text-[11px] text-slate-400">Linear drawdown trajectory from start date to container exhaustion</p>
+                        </div>
+                        <div class="flex items-center gap-3 text-[11px] font-mono">
+                            <span class="flex items-center gap-1.5 text-sky-400">
+                                <span class="w-2.5 h-0.5 bg-sky-400 inline-block"></span> Stock (g)
+                            </span>
+                            <span class="flex items-center gap-1.5 text-amber-400">
+                                <span class="w-2.5 h-0.5 bg-amber-400 inline-block border-t border-dashed"></span> 20% Reorder
+                            </span>
+                        </div>
+                    </div>
+                    <div id="chartContainer" class="w-full h-56 sm:h-64 relative">
+                        <canvas id="depletionChart" class="w-full h-full block"></canvas>
+                    </div>
+                </div>
+            </div>
+        </section>
+
+        <!-- MODULE 4: MULTI-USER COMMUNITY LOGBOOK & SAVINGS BENCHMARKS -->
+        <section id="communityLogbookSection" class="bg-white rounded-2xl border border-slate-200 shadow-sm overflow-hidden">
+            <div class="p-4 sm:p-5 border-b border-slate-200 bg-slate-900 text-white flex flex-wrap items-center justify-between gap-4">
+                <div>
+                    <div class="flex items-center gap-2">
+                        <span class="w-6 h-6 rounded-md bg-emerald-500 text-slate-950 font-mono text-xs font-bold flex items-center justify-center">04</span>
+                        <h2 class="font-bold text-base text-white">Multi-User Shared Calculation Logbook</h2>
+                        <span id="cloudSyncStatusBadge" class="px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-slate-800 text-slate-300 border border-slate-700">
+                            Connecting...
+                        </span>
+                    </div>
+                    <p class="text-xs text-slate-400 mt-0.5">Publish your product calculation or load another user's setup to compare consumption and save more.</p>
+                </div>
+
+                <!-- Community Insights Quick Stats -->
+                <div class="flex items-center gap-4 text-xs font-mono bg-slate-800/90 px-3.5 py-2 rounded-xl border border-slate-700">
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase">Shared Entries</span>
+                        <strong id="communityTotalCount" class="text-sky-400 text-sm">0</strong>
+                    </div>
+                    <div class="h-6 w-px bg-slate-700"></div>
+                    <div>
+                        <span class="text-slate-400 block text-[10px] uppercase">Avg Lifespan</span>
+                        <strong id="communityAvgLifespan" class="text-emerald-400 text-sm">0 days</strong>
+                    </div>
+                    <div class="h-6 w-px bg-slate-700 hidden sm:block"></div>
+                    <div class="hidden sm:block">
+                        <span class="text-slate-400 block text-[10px] uppercase">Avg Orifice</span>
+                        <strong id="communityAvgHole" class="text-amber-300 text-sm">0.0 mm</strong>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Publish Current Calculation Form -->
+            <div class="p-4 sm:p-5 bg-slate-50 border-b border-slate-200">
+                <div class="flex flex-col lg:flex-row gap-3 items-stretch lg:items-end">
+                    <div class="sm:w-48">
+                        <label for="contributorNameInput" class="block text-xs font-semibold text-slate-700 mb-1">
+                            Your Name / Alias
+                        </label>
+                        <input id="contributorNameInput" type="text" placeholder="Anonymous Saver" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs font-medium text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    </div>
+
+                    <div class="flex-1">
+                        <label for="savingsTipInput" class="block text-xs font-semibold text-slate-700 mb-1">
+                            Consumption / Savings Note (How did you optimize usage?)
+                        </label>
+                        <input id="savingsTipInput" type="text" placeholder="e.g., Switched to 3.2mm nozzle cap and reduced bead length to 18mm — saved 35% per month!" class="w-full px-3 py-2 rounded-lg border border-slate-300 bg-white text-xs text-slate-900 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                    </div>
+
+                    <button id="btnPublishLogbook" type="button" class="px-4 py-2 rounded-lg bg-emerald-600 hover:bg-emerald-500 text-white text-xs font-bold shadow-sm transition flex items-center justify-center gap-2 shrink-0">
+                        <svg class="w-4 h-4" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M7 16a4 4 0 01-.88-7.903A5 5 0 1115.9 6L16 6a5 5 0 011 9.9M15 13l-3-3m0 0l-3 3m3-3v12" />
+                        </svg>
+                        <span>Publish Calculation to Logbook</span>
+                    </button>
+                </div>
+                <div class="mt-2 flex flex-wrap items-center gap-3 text-[11px] font-mono text-slate-500">
+                    <span>Will publish snapshot:</span>
+                    <span class="px-2 py-0.5 rounded bg-white border border-slate-200 text-slate-700" id="publishPreviewBadge">
+                        Mint Fluoride Toothpaste • Net: 100g • Hole: 4.20mm • 0.48 g/day • Lifespan: 209 days
+                    </span>
+                </div>
+            </div>
+
+            <!-- Filter & Sort Toolbar -->
+            <div class="px-4 sm:px-5 py-3 border-b border-slate-200 flex flex-wrap items-center justify-between gap-3 bg-white">
+                <div class="flex flex-wrap items-center gap-2">
+                    <div class="relative">
+                        <input id="logbookSearchInput" type="text" placeholder="Search product, user, or tip..." class="pl-8 pr-3 py-1.5 rounded-lg border border-slate-300 text-xs text-slate-800 focus:outline-none focus:ring-2 focus:ring-sky-500 w-56 sm:w-64">
+                        <svg class="w-3.5 h-3.5 text-slate-400 absolute left-2.5 top-2" fill="none" stroke="currentColor" stroke-width="2" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z" />
+                        </svg>
+                    </div>
+
+                    <div class="flex items-center bg-slate-100 p-1 rounded-lg border border-slate-200 text-xs font-semibold">
+                        <button type="button" data-filter-type="all" class="px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-sm transition">All</button>
+                        <button type="button" data-filter-type="paste" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">Paste</button>
+                        <button type="button" data-filter-type="powder" class="px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition">Powder</button>
+                    </div>
+                </div>
+
+                <div class="flex items-center gap-2">
+                    <label for="logbookSortSelect" class="text-xs font-semibold text-slate-500">Sort by:</label>
+                    <select id="logbookSortSelect" class="px-2.5 py-1.5 rounded-lg border border-slate-300 bg-white text-xs font-semibold text-slate-700 focus:outline-none focus:ring-2 focus:ring-sky-500">
+                        <option value="recent">Most Recent</option>
+                        <option value="lifespan">Longest Lifespan (Best Value)</option>
+                        <option value="lowestUse">Lowest Daily Consumption (g/day)</option>
+                        <option value="smallestHole">Smallest Output Hole (mm)</option>
+                    </select>
+                </div>
+            </div>
+
+            <!-- Shared Logbook Entries Table / Cards -->
+            <div class="overflow-x-auto">
+                <table class="w-full text-left border-collapse">
+                    <thead>
+                        <tr class="bg-slate-50 border-b border-slate-200 text-[11px] font-bold uppercase tracking-wider text-slate-500">
+                            <th class="py-3 px-4">Product & Contributor</th>
+                            <th class="py-3 px-3">Type</th>
+                            <th class="py-3 px-3">Net Qty</th>
+                            <th class="py-3 px-3">Hole Ø</th>
+                            <th class="py-3 px-3">Daily Use</th>
+                            <th class="py-3 px-3">Full Lifespan</th>
+                            <th class="py-3 px-4">Savings / Usage Note</th>
+                            <th class="py-3 px-4 text-right">Compare / Load</th>
+                        </tr>
+                    </thead>
+                    <tbody id="communityLogbookBody" class="divide-y divide-slate-100 text-xs">
+                        <tr>
+                            <td colspan="8" class="py-8 text-center text-slate-400 font-mono">
+                                Loading community calculation logbook...
+                            </td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </section>
+    </main>
+
+    <!-- Footer -->
+    <footer class="bg-white border-t border-slate-200 py-4 px-4 sm:px-6 lg:px-8 mt-8">
+        <div class="max-w-7xl mx-auto flex flex-col sm:flex-row items-center justify-between gap-2 text-xs text-slate-500">
+            <span>Nozzle & Consumable Analyzer + Shared Logbook • Precision Orifice & Inventory Metrology</span>
+            <span class="font-mono">Formula: Mass/day = (π · r² · L / 1000) · ρ · η</span>
+        </div>
+    </footer>
+
+    <script type="module">
+        import { initializeApp } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-app.js";
+        import { getAuth, signInAnonymously, signInWithCustomToken, onAuthStateChanged } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-auth.js";
+        import { getFirestore, collection, addDoc, onSnapshot, getDocs } from "https://www.gstatic.com/firebasejs/11.6.1/firebase-firestore.js";
+
+        /**
+         * Aperture & Depletion Lab + Multi-User Shared Logbook
+         */
+        (function () {
+            'use strict';
+
+            // =========================================================================
+            // APPLICATION STATE
+            // =========================================================================
+            const state = {
+                // Hole Measurement State
+                holeSource: 'optical', // 'optical' | 'manual'
+                manualDiameterMm: 4.20,
+                referenceMm: 15.0,
+                ruler: {
+                    p1: { x: 0.25, y: 0.78 },
+                    p2: { x: 0.55, y: 0.78 }
+                },
+                circle: {
+                    cx: 0.50,
+                    cy: 0.45,
+                    rNorm: 0.085
+                },
+                interactionMode: 'both',
+                uploadedImage: null,
+
+                // Material & Consumption State
+                productName: 'Mint Fluoride Toothpaste',
+                materialType: 'paste', // 'paste' | 'powder'
+                density: 1.38,         // g/cm^3
+                dispenseLengthMm: 25,  // mm/day
+                packingEfficiency: 100,// %
+                rateSource: 'model',   // 'model' | 'log'
+                usageLogs: [
+                    { id: 1, date: '2026-11-17', grams: 0.51 },
+                    { id: 2, date: '2026-11-18', grams: 0.49 },
+                    { id: 3, date: '2026-11-19', grams: 0.55 },
+                    { id: 4, date: '2026-11-20', grams: 0.53 }
+                ],
+
+                // Inventory & Forecast State
+                totalWeightG: 100.0,
+                remainingWeightG: 75.0,
+                startDate: '2026-11-21',
+                simReductionPct: 20,
+
+                // Shared Community Logbook State
+                communityEntries: [],
+                logbookFilterType: 'all',
+                logbookSearch: '',
+                logbookSort: 'recent'
+            };
+
+            // Firebase State
+            let db = null;
+            let auth = null;
+            let currentUser = null;
+            const appId = typeof __app_id !== 'undefined' ? __app_id : 'default-app-id';
+
+            // Baseline starter records if Firestore collection is brand new
+            const STARTER_COMMUNITY_RECORDS = [
+                {
+                    contributor: 'Aarav K.',
+                    productName: 'Herbal Gel Toothpaste (150g)',
+                    materialType: 'paste',
+                    totalWeightG: 150,
+                    remainingWeightG: 150,
+                    holeDiameterMm: 3.40,
+                    dispenseLengthMm: 16,
+                    density: 1.35,
+                    packingEfficiency: 100,
+                    dailyConsumptionG: 0.20,
+                    totalLifespanDays: 750,
+                    finishDate: '2028-12-10',
+                    tip: 'Switched from wide flip-cap to pea-sized 16mm bead; stretched 150g tube over 2x longer.',
+                    createdAt: Date.now() - 86400000 * 3
+                },
+                {
+                    contributor: 'Elena M.',
+                    productName: 'Whey Isolate Protein Tub (1000g)',
+                    materialType: 'powder',
+                    totalWeightG: 1000,
+                    remainingWeightG: 1000,
+                    holeDiameterMm: 28.00,
+                    dispenseLengthMm: 65,
+                    density: 0.72,
+                    packingEfficiency: 62,
+                    dailyConsumptionG: 17.87,
+                    totalLifespanDays: 56,
+                    finishDate: '2027-01-16',
+                    tip: 'Leveled scoop instead of heaping; keeps 1kg tub lasting a full 8 weeks consistently.',
+                    createdAt: Date.now() - 86400000 * 2
+                },
+                {
+                    contributor: 'Rohan D.',
+                    productName: 'Smoked Paprika Spice Shaker (85g)',
+                    materialType: 'powder',
+                    totalWeightG: 85,
+                    remainingWeightG: 85,
+                    holeDiameterMm: 4.50,
+                    dispenseLengthMm: 40,
+                    density: 0.68,
+                    packingEfficiency: 58,
+                    dailyConsumptionG: 0.25,
+                    totalLifespanDays: 340,
+                    finishDate: '2027-10-27',
+                    tip: 'Taped half of shaker holes shut; prevents accidental over-pouring while cooking.',
+                    createdAt: Date.now() - 86400000
+                }
+            ];
+
+            // Dragging state for canvas interaction
+            let dragTarget = null;
+            let dragOffset = { x: 0, y: 0 };
+
+            // =========================================================================
+            // DOM ELEMENT REFERENCES
+            // =========================================================================
+            const els = {
+                // KPIs
+                kpiHoleSourceBadge: document.getElementById('kpiHoleSourceBadge'),
+                kpiDiameter: document.getElementById('kpiDiameter'),
+                kpiArea: document.getElementById('kpiArea'),
+                kpiRateModeBadge: document.getElementById('kpiRateModeBadge'),
+                kpiDailyRate: document.getElementById('kpiDailyRate'),
+                kpiDailyVol: document.getElementById('kpiDailyVol'),
+                kpiStockPctBadge: document.getElementById('kpiStockPctBadge'),
+                kpiDaysLeft: document.getElementById('kpiDaysLeft'),
+                kpiStockGrams: document.getElementById('kpiStockGrams'),
+                kpiTotalGrams: document.getElementById('kpiTotalGrams'),
+                kpiFinishDate: document.getElementById('kpiFinishDate'),
+                kpiStartDateDisplay: document.getElementById('kpiStartDateDisplay'),
+
+                // Module 1: Hole Measurement
+                photoUploadInput: document.getElementById('photoUploadInput'),
+                toolModeBoth: document.getElementById('toolModeBoth'),
+                toolModeRuler: document.getElementById('toolModeRuler'),
+                toolModeCircle: document.getElementById('toolModeCircle'),
+                referenceMmInput: document.getElementById('referenceMmInput'),
+                btnAutoDetectHole: document.getElementById('btnAutoDetectHole'),
+                canvasWrapper: document.getElementById('canvasWrapper'),
+                holeCanvas: document.getElementById('holeCanvas'),
+                hudScalePx: document.getElementById('hudScalePx'),
+                hudScaleMm: document.getElementById('hudScaleMm'),
+                hudHoleDiam: document.getElementById('hudHoleDiam'),
+                hudHolePx: document.getElementById('hudHolePx'),
+                hudHoleArea: document.getElementById('hudHoleArea'),
+                srcOpticalBtn: document.getElementById('srcOpticalBtn'),
+                srcManualBtn: document.getElementById('srcManualBtn'),
+                manualDiameterInput: document.getElementById('manualDiameterInput'),
+                panelAreaReadout: document.getElementById('panelAreaReadout'),
+                panelRadiusReadout: document.getElementById('panelRadiusReadout'),
+
+                // Module 2: Consumption Engine
+                matPasteBtn: document.getElementById('matPasteBtn'),
+                matPowderBtn: document.getElementById('matPowderBtn'),
+                densityInput: document.getElementById('densityInput'),
+                dispenseLengthInput: document.getElementById('dispenseLengthInput'),
+                packingSlider: document.getElementById('packingSlider'),
+                packingValueDisplay: document.getElementById('packingValueDisplay'),
+                modelRateReadout: document.getElementById('modelRateReadout'),
+                modelVolumeReadout: document.getElementById('modelVolumeReadout'),
+                useModelRateBtn: document.getElementById('useModelRateBtn'),
+                useLogRateBtn: document.getElementById('useLogRateBtn'),
+                logAvgBadgeVal: document.getElementById('logAvgBadgeVal'),
+                newLogDateInput: document.getElementById('newLogDateInput'),
+                newLogGramsInput: document.getElementById('newLogGramsInput'),
+                btnAddLog: document.getElementById('btnAddLog'),
+                usageLogList: document.getElementById('usageLogList'),
+
+                // Module 3: Depletion Predictor & Product Qty
+                productNameInput: document.getElementById('productNameInput'),
+                btnResetRemainingToNet: document.getElementById('btnResetRemainingToNet'),
+                forecastSourceModelBtn: document.getElementById('forecastSourceModelBtn'),
+                forecastSourceLogBtn: document.getElementById('forecastSourceLogBtn'),
+                totalWeightInput: document.getElementById('totalWeightInput'),
+                remainingWeightInput: document.getElementById('remainingWeightInput'),
+                startDateInput: document.getElementById('startDateInput'),
+                stockBarLabel: document.getElementById('stockBarLabel'),
+                stockProgressBar: document.getElementById('stockProgressBar'),
+                gaugeMaxLabel: document.getElementById('gaugeMaxLabel'),
+                reorderDateOutput: document.getElementById('reorderDateOutput'),
+                reorderDaysOutput: document.getElementById('reorderDaysOutput'),
+                emptyDateOutput: document.getElementById('emptyDateOutput'),
+                emptyDaysOutput: document.getElementById('emptyDaysOutput'),
+                chartContainer: document.getElementById('chartContainer'),
+                depletionChart: document.getElementById('depletionChart'),
+
+                // Savings Simulator
+                simReductionBadge: document.getElementById('simReductionBadge'),
+                simReductionSlider: document.getElementById('simReductionSlider'),
+                simNewRateOutput: document.getElementById('simNewRateOutput'),
+                simExtraDaysOutput: document.getElementById('simExtraDaysOutput'),
+                simNewLifespanOutput: document.getElementById('simNewLifespanOutput'),
+
+                // Module 4: Community Logbook
+                cloudSyncStatusBadge: document.getElementById('cloudSyncStatusBadge'),
+                communityTotalCount: document.getElementById('communityTotalCount'),
+                communityAvgLifespan: document.getElementById('communityAvgLifespan'),
+                communityAvgHole: document.getElementById('communityAvgHole'),
+                contributorNameInput: document.getElementById('contributorNameInput'),
+                savingsTipInput: document.getElementById('savingsTipInput'),
+                btnPublishLogbook: document.getElementById('btnPublishLogbook'),
+                publishPreviewBadge: document.getElementById('publishPreviewBadge'),
+                logbookSearchInput: document.getElementById('logbookSearchInput'),
+                logbookSortSelect: document.getElementById('logbookSortSelect'),
+                communityLogbookBody: document.getElementById('communityLogbookBody'),
+
+                // Header actions & Toast
+                btnLoadSample: document.getElementById('btnLoadSample'),
+                btnCopyReport: document.getElementById('btnCopyReport'),
+                toastBanner: document.getElementById('toastBanner'),
+                toastMessage: document.getElementById('toastMessage'),
+                toastDot: document.getElementById('toastDot')
+            };
+
+            // =========================================================================
+            // UTILITY HELPERS
+            // =========================================================================
+            let toastTimer = null;
+            function showToast(msg, type = 'success') {
+                els.toastMessage.textContent = msg;
+                els.toastDot.className = 'w-2.5 h-2.5 rounded-full ' + (type === 'warn' ? 'bg-amber-400' : 'bg-emerald-400');
+                els.toastBanner.classList.remove('translate-y-20', 'opacity-0');
+                clearTimeout(toastTimer);
+                toastTimer = setTimeout(() => {
+                    els.toastBanner.classList.add('translate-y-20', 'opacity-0');
+                }, 3000);
+            }
+
+            function addDaysToIsoDate(isoDateStr, daysToAdd) {
+                const parts = isoDateStr.split('-').map(Number);
+                if (parts.length !== 3 || isNaN(parts[0])) {
+                    return 'Invalid Date';
+                }
+                const dt = new Date(Date.UTC(parts[0], parts[1] - 1, parts[2]));
+                dt.setUTCDate(dt.getUTCDate() + Math.ceil(daysToAdd));
+                return dt.toISOString().slice(0, 10);
+            }
+
+            function escapeHtml(str) {
+                return String(str || '')
+                    .replace(/&/g, '&amp;')
+                    .replace(/</g, '&lt;')
+                    .replace(/>/g, '&gt;')
+                    .replace(/"/g, '&quot;');
+            }
+
+            // =========================================================================
+            // FIREBASE PERSISTENT MULTI-USER LOGBOOK INTEGRATION
+            // =========================================================================
+            async function initFirebaseLogbook() {
+                try {
+                    if (typeof __firebase_config === 'undefined') {
+                        els.cloudSyncStatusBadge.textContent = 'Offline Demo Mode';
+                        state.communityEntries = [...STARTER_COMMUNITY_RECORDS];
+                        renderCommunityLogbook();
+                        return;
+                    }
+
+                    const firebaseConfig = JSON.parse(__firebase_config);
+                    const app = initializeApp(firebaseConfig);
+                    auth = getAuth(app);
+                    db = getFirestore(app);
+
+                    if (typeof __initial_auth_token !== 'undefined' && __initial_auth_token) {
+                        await signInWithCustomToken(auth, __initial_auth_token);
+                    } else {
+                        await signInAnonymously(auth);
+                    }
+
+                    onAuthStateChanged(auth, async (user) => {
+                        if (!user) return;
+                        currentUser = user;
+                        els.cloudSyncStatusBadge.textContent = 'LIVE SHARED DB';
+                        els.cloudSyncStatusBadge.className = 'px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-emerald-500/20 text-emerald-300 border border-emerald-500/40';
+
+                        const logbookCol = collection(db, 'artifacts', appId, 'public', 'data', 'consumable_logbook');
+
+                        // Seed initial community reference entries if collection is empty
+                        try {
+                            const initialSnap = await getDocs(logbookCol);
+                            if (initialSnap.empty) {
+                                for (const seed of STARTER_COMMUNITY_RECORDS) {
+                                    await addDoc(logbookCol, seed);
+                                }
+                            }
+                        } catch (seedErr) {
+                            console.warn('Seed check skipped:', seedErr);
+                        }
+
+                        // Real-time listener for all users' calculations
+                        onSnapshot(
+                            logbookCol,
+                            (snapshot) => {
+                                const loaded = [];
+                                snapshot.forEach((docSnap) => {
+                                    loaded.push({ id: docSnap.id, ...docSnap.data() });
+                                });
+                                state.communityEntries = loaded;
+                                renderCommunityLogbook();
+                            },
+                            (error) => {
+                                console.error('Logbook listener error:', error);
+                                els.cloudSyncStatusBadge.textContent = 'Sync Error';
+                                els.cloudSyncStatusBadge.className = 'px-2 py-0.5 rounded text-[11px] font-mono font-semibold bg-rose-500/20 text-rose-300 border border-rose-500/40';
+                            }
+                        );
+                    });
+                } catch (err) {
+                    console.error('Firebase init failed:', err);
+                    els.cloudSyncStatusBadge.textContent = 'Local Mode';
+                    state.communityEntries = [...STARTER_COMMUNITY_RECORDS];
+                    renderCommunityLogbook();
+                }
+            }
+
+            async function publishCurrentCalculation() {
+                if (!currentUser || !db) {
+                    showToast('Database is still connecting — please wait a moment', 'warn');
+                    return;
+                }
+
+                const geom = getActiveHoleGeometry();
+                const activeRate = getActiveConsumptionRate();
+                const dailyG = activeRate.gramsPerDay;
+
+                if (dailyG <= 0) {
+                    showToast('Daily consumption must be greater than 0 to publish', 'warn');
+                    return;
+                }
+
+                const totalW = Math.max(1, state.totalWeightG);
+                const remW = Math.max(0, state.remainingWeightG);
+                const fullLifespanDays = Math.ceil(totalW / dailyG);
+                const remainingDays = Math.ceil(remW / dailyG);
+                const finishDate = addDaysToIsoDate(state.startDate, remainingDays);
+
+                const contributor = (els.contributorNameInput.value || '').trim() || 'Anonymous Saver';
+                const productName = (els.productNameInput.value || '').trim() || 'Unnamed Consumable';
+                const tip = (els.savingsTipInput.value || '').trim() || `Configured ${geom.diameterMm.toFixed(2)}mm orifice for ${totalW}g net quantity.`;
+
+                const payload = {
+                    contributor,
+                    userId: currentUser.uid,
+                    productName,
+                    materialType: state.materialType,
+                    totalWeightG: Number(totalW.toFixed(1)),
+                    remainingWeightG: Number(remW.toFixed(1)),
+                    holeDiameterMm: Number(geom.diameterMm.toFixed(2)),
+                    dispenseLengthMm: Number(state.dispenseLengthMm),
+                    density: Number(state.density),
+                    packingEfficiency: Number(state.packingEfficiency),
+                    dailyConsumptionG: Number(dailyG.toFixed(2)),
+                    totalLifespanDays: fullLifespanDays,
+                    finishDate,
+                    tip,
+                    createdAt: Date.now()
+                };
+
+                try {
+                    els.btnPublishLogbook.disabled = true;
+                    els.btnPublishLogbook.classList.add('opacity-60');
+                    const logbookCol = collection(db, 'artifacts', appId, 'public', 'data', 'consumable_logbook');
+                    await addDoc(logbookCol, payload);
+                    els.savingsTipInput.value = '';
+                    showToast(`Published "${productName}" to shared community logbook!`);
+                } catch (err) {
+                    console.error('Publish error:', err);
+                    showToast('Failed to publish entry — check connection', 'warn');
+                } finally {
+                    els.btnPublishLogbook.disabled = false;
+                    els.btnPublishLogbook.classList.remove('opacity-60');
+                }
+            }
+
+            function applyCommunityPreset(entry) {
+                state.productName = entry.productName || 'Community Product';
+                state.materialType = entry.materialType === 'powder' ? 'powder' : 'paste';
+                state.totalWeightG = Number(entry.totalWeightG) || 100;
+                state.remainingWeightG = Number(entry.totalWeightG) || 100;
+                state.manualDiameterMm = Number(entry.holeDiameterMm) || 4.0;
+                state.holeSource = 'manual';
+                state.dispenseLengthMm = Number(entry.dispenseLengthMm) || 20;
+                state.density = Number(entry.density) || 1.2;
+                state.packingEfficiency = Number(entry.packingEfficiency) || (state.materialType === 'powder' ? 65 : 100);
+                state.rateSource = 'model';
+
+                // Sync form input fields
+                els.productNameInput.value = state.productName;
+                els.totalWeightInput.value = state.totalWeightG;
+                els.remainingWeightInput.value = state.remainingWeightG;
+                els.manualDiameterInput.value = state.manualDiameterMm.toFixed(2);
+                els.dispenseLengthInput.value = state.dispenseLengthMm;
+                els.densityInput.value = state.density;
+
+                syncAllUI();
+                window.scrollTo({ top: 0, behavior: 'smooth' });
+                showToast(`Loaded "${state.productName}" preset (${state.totalWeightG}g, Ø ${state.manualDiameterMm}mm)`);
+            }
+
+            function renderCommunityLogbook() {
+                const entries = state.communityEntries || [];
+
+                // Update Community Summary Metrics
+                els.communityTotalCount.textContent = entries.length.toString();
+                if (entries.length > 0) {
+                    const avgLife = entries.reduce((sum, e) => sum + (Number(e.totalLifespanDays) || 0), 0) / entries.length;
+                    const avgHole = entries.reduce((sum, e) => sum + (Number(e.holeDiameterMm) || 0), 0) / entries.length;
+                    els.communityAvgLifespan.textContent = `${Math.round(avgLife)} days`;
+                    els.communityAvgHole.textContent = `${avgHole.toFixed(2)} mm`;
+                } else {
+                    els.communityAvgLifespan.textContent = '0 days';
+                    els.communityAvgHole.textContent = '0.0 mm';
+                }
+
+                // Filter in JavaScript memory
+                const searchQ = state.logbookSearch.toLowerCase().trim();
+                let filtered = entries.filter((e) => {
+                    if (state.logbookFilterType !== 'all' && e.materialType !== state.logbookFilterType) {
+                        return false;
+                    }
+                    if (!searchQ) return true;
+                    const hay = `${e.productName} ${e.contributor} ${e.tip}`.toLowerCase();
+                    return hay.includes(searchQ);
+                });
+
+                // Sort in JavaScript memory
+                filtered.sort((a, b) => {
+                    if (state.logbookSort === 'lifespan') {
+                        return (Number(b.totalLifespanDays) || 0) - (Number(a.totalLifespanDays) || 0);
+                    }
+                    if (state.logbookSort === 'lowestUse') {
+                        return (Number(a.dailyConsumptionG) || 0) - (Number(b.dailyConsumptionG) || 0);
+                    }
+                    if (state.logbookSort === 'smallestHole') {
+                        return (Number(a.holeDiameterMm) || 0) - (Number(b.holeDiameterMm) || 0);
+                    }
+                    return (Number(b.createdAt) || 0) - (Number(a.createdAt) || 0);
+                });
+
+                if (filtered.length === 0) {
+                    els.communityLogbookBody.innerHTML = `
+                        <tr>
+                            <td colspan="8" class="py-8 text-center text-slate-400">
+                                No matching calculations found. Adjust your filters or publish your own above!
+                            </td>
+                        </tr>`;
+                    return;
+                }
+
+                els.communityLogbookBody.innerHTML = filtered
+                    .map((item) => {
+                        const isPowder = item.materialType === 'powder';
+                        const badgeClass = isPowder
+                            ? 'bg-amber-50 text-amber-700 border-amber-200'
+                            : 'bg-sky-50 text-sky-700 border-sky-200';
+                        const dateStr = item.createdAt
+                            ? new Date(item.createdAt).toISOString().slice(0, 10)
+                            : 'Recent';
+
+                        return `
+                        <tr class="hover:bg-slate-50/90 transition">
+                            <td class="py-3 px-4">
+                                <div class="font-bold text-slate-900">${escapeHtml(item.productName)}</div>
+                                <div class="text-[11px] text-slate-500">by <span class="font-medium text-slate-700">${escapeHtml(item.contributor)}</span> • ${dateStr}</div>
+                            </td>
+                            <td class="py-3 px-3">
+                                <span class="px-2 py-0.5 rounded border text-[11px] font-mono font-semibold uppercase ${badgeClass}">
+                                    ${isPowder ? 'Powder' : 'Paste'}
+                                </span>
+                            </td>
+                            <td class="py-3 px-3 font-mono font-semibold text-slate-800">${Number(item.totalWeightG || 0).toFixed(0)} g</td>
+                            <td class="py-3 px-3 font-mono font-semibold text-sky-700">${Number(item.holeDiameterMm || 0).toFixed(2)} mm</td>
+                            <td class="py-3 px-3 font-mono font-bold text-slate-900">${Number(item.dailyConsumptionG || 0).toFixed(2)} g/d</td>
+                            <td class="py-3 px-3">
+                                <span class="px-2 py-0.5 rounded bg-emerald-50 text-emerald-700 border border-emerald-200 font-mono font-bold">
+                                    ${Number(item.totalLifespanDays || 0)} days
+                                </span>
+                            </td>
+                            <td class="py-3 px-4 text-slate-600 max-w-xs">
+                                <p class="line-clamp-2" title="${escapeHtml(item.tip)}">${escapeHtml(item.tip)}</p>
+                            </td>
+                            <td class="py-3 px-4 text-right">
+                                <button type="button" data-load-entry-id="${escapeHtml(item.id)}" class="px-3 py-1.5 rounded-lg bg-slate-900 hover:bg-sky-600 text-white font-semibold text-[11px] transition shadow-sm whitespace-nowrap">
+                                    Load & Compare
+                                </button>
+                            </td>
+                        </tr>`;
+                    })
+                    .join('');
+            }
+
+            // =========================================================================
+            // CORE METROLOGY & CONSUMPTION CALCULATIONS
+            // =========================================================================
+            function getOpticalMetrics() {
+                const w = els.holeCanvas.width || 600;
+                const h = els.holeCanvas.height || 400;
+                const minDim = Math.min(w, h);
+
+                const x1 = state.ruler.p1.x * w;
+                const y1 = state.ruler.p1.y * h;
+                const x2 = state.ruler.p2.x * w;
+                const y2 = state.ruler.p2.y * h;
+                const rulerPx = Math.max(1, Math.hypot(x2 - x1, y2 - y1));
+
+                const circleRadiusPx = Math.max(4, state.circle.rNorm * minDim);
+                const circleDiameterPx = circleRadiusPx * 2;
+
+                const mmPerPx = state.referenceMm / rulerPx;
+                const diameterMm = circleDiameterPx * mmPerPx;
+                const areaMm2 = Math.PI * Math.pow(diameterMm / 2, 2);
+
+                return {
+                    w, h, minDim,
+                    x1, y1, x2, y2,
+                    rulerPx,
+                    cx: state.circle.cx * w,
+                    cy: state.circle.cy * h,
+                    circleRadiusPx,
+                    circleDiameterPx,
+                    diameterMm,
+                    areaMm2
+                };
+            }
+
+            function getActiveHoleGeometry() {
+                const optical = getOpticalMetrics();
+                if (state.holeSource === 'optical') {
+                    return {
+                        diameterMm: optical.diameterMm,
+                        areaMm2: optical.areaMm2,
+                        radiusMm: optical.diameterMm / 2
+                    };
+                } else {
+                    const d = Math.max(0.05, state.manualDiameterMm);
+                    const r = d / 2;
+                    return {
+                        diameterMm: d,
+                        areaMm2: Math.PI * r * r,
+                        radiusMm: r
+                    };
+                }
+            }
+
+            function getModelDailyConsumption() {
+                const geom = getActiveHoleGeometry();
+                // Volume in mm^3 = Area (mm^2) * Length (mm/day)
+                const volumeMm3 = geom.areaMm2 * Math.max(0, state.dispenseLengthMm);
+                const volumeCm3 = volumeMm3 / 1000.0;
+                const eff = Math.max(0.01, state.packingEfficiency / 100.0);
+                const gramsPerDay = volumeCm3 * Math.max(0.01, state.density) * eff;
+                return {
+                    volumeMm3,
+                    volumeCm3: volumeCm3 * eff,
+                    gramsPerDay
+                };
+            }
+
+            function getLoggedAverageConsumption() {
+                if (!state.usageLogs.length) return 0;
+                const sum = state.usageLogs.reduce((acc, item) => acc + item.grams, 0);
+                return sum / state.usageLogs.length;
+            }
+
+            function getActiveConsumptionRate() {
+                const model = getModelDailyConsumption();
+                const logAvg = getLoggedAverageConsumption();
+                if (state.rateSource === 'log' && logAvg > 0) {
+                    return {
+                        gramsPerDay: logAvg,
+                        volumeCm3PerDay: logAvg / Math.max(0.01, state.density),
+                        sourceLabel: 'LOG AVG'
+                    };
+                }
+                return {
+                    gramsPerDay: model.gramsPerDay,
+                    volumeCm3PerDay: model.volumeCm3,
+                    sourceLabel: 'MODEL'
+                };
+            }
+
+            // =========================================================================
+            // MODULE 1: INTERACTIVE CANVAS RENDERING & AUTO-SNAP
+            // =========================================================================
+            function resizeHoleCanvas() {
+                const rect = els.canvasWrapper.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                els.holeCanvas.width = Math.max(300, Math.floor(rect.width * dpr));
+                els.holeCanvas.height = Math.max(260, Math.floor(rect.height * dpr));
+                drawHoleCanvas();
+            }
+
+            function drawSyntheticNozzleScene(ctx, w, h) {
+                // Draws a realistic top-down CAD/macro view of a nozzle cap & reference calibration bar
+                // when no user photo has been uploaded yet.
+                const cx = state.circle.cx * w;
+                const cy = state.circle.cy * h;
+                const baseR = Math.min(w, h) * 0.28;
+
+                // Outer threaded cap body
+                const capGrad = ctx.createRadialGradient(cx - baseR * 0.2, cy - baseR * 0.2, baseR * 0.1, cx, cy, baseR);
+                capGrad.addColorStop(0, '#475569');
+                capGrad.addColorStop(0.7, '#334155');
+                capGrad.addColorStop(1, '#1e293b');
+                ctx.fillStyle = capGrad;
+                ctx.beginPath();
+                ctx.arc(cx, cy, baseR, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.lineWidth = 2;
+                ctx.strokeStyle = '#64748b';
+                ctx.stroke();
+
+                // Inner nozzle shoulder bevel
+                ctx.fillStyle = '#1e293b';
+                ctx.beginPath();
+                ctx.arc(cx, cy, baseR * 0.58, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#475569';
+                ctx.stroke();
+
+                // Dark output orifice hole (default ~0.085 * minDim radius)
+                const defaultHoleR = Math.min(w, h) * 0.085;
+                ctx.fillStyle = '#05080f';
+                ctx.beginPath();
+                ctx.arc(cx, cy, defaultHoleR, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.lineWidth = 1.5;
+                ctx.strokeStyle = '#0f172a';
+                ctx.stroke();
+
+                // Reference Calibration Scale Block at bottom-left
+                const rx1 = w * 0.25;
+                const ry1 = h * 0.78;
+                const rx2 = w * 0.55;
+                const barH = 18;
+                ctx.fillStyle = 'rgba(241, 245, 249, 0.9)';
+                ctx.fillRect(rx1, ry1 + 12, rx2 - rx1, barH);
+                ctx.strokeStyle = '#94a3b8';
+                ctx.lineWidth = 1;
+                ctx.strokeRect(rx1, ry1 + 12, rx2 - rx1, barH);
+
+                // Millimeter tick marks along calibration block
+                ctx.strokeStyle = '#0f172a';
+                const ticks = 15;
+                for (let i = 0; i <= ticks; i++) {
+                    const tx = rx1 + ((rx2 - rx1) * i) / ticks;
+                    const tickLen = i % 5 === 0 ? 10 : 5;
+                    ctx.beginPath();
+                    ctx.moveTo(tx, ry1 + 12);
+                    ctx.lineTo(tx, ry1 + 12 + tickLen);
+                    ctx.stroke();
+                }
+            }
+
+            function drawHoleCanvas() {
+                const ctx = els.holeCanvas.getContext('2d');
+                const m = getOpticalMetrics();
+                const dpr = window.devicePixelRatio || 1;
+
+                ctx.clearRect(0, 0, m.w, m.h);
+
+                // 1. Background Image or Realistic CAD Nozzle Specimen
+                if (state.uploadedImage) {
+                    const img = state.uploadedImage;
+                    const scale = Math.min(m.w / img.width, m.h / img.height);
+                    const drawW = img.width * scale;
+                    const drawH = img.height * scale;
+                    const offsetX = (m.w - drawW) / 2;
+                    const offsetY = (m.h - drawH) / 2;
+                    ctx.drawImage(img, offsetX, offsetY, drawW, drawH);
+                } else {
+                    drawSyntheticNozzleScene(ctx, m.w, m.h);
+                }
+
+                // 2. Draw Reference Scale Ruler (Amber)
+                const rulerAlpha = state.interactionMode === 'circle' ? 0.45 : 1.0;
+                ctx.save();
+                ctx.globalAlpha = rulerAlpha;
+                ctx.strokeStyle = '#fbbf24'; // amber-400
+                ctx.lineWidth = 2.5 * dpr;
+                ctx.beginPath();
+                ctx.moveTo(m.x1, m.y1);
+                ctx.lineTo(m.x2, m.y2);
+                ctx.stroke();
+
+                // End perpendicular calipers
+                const angle = Math.atan2(m.y2 - m.y1, m.x2 - m.x1);
+                const perp = angle + Math.PI / 2;
+                const capLen = 10 * dpr;
+                [ [m.x1, m.y1], [m.x2, m.y2] ].forEach(([px, py]) => {
+                    ctx.beginPath();
+                    ctx.moveTo(px - Math.cos(perp) * capLen, py - Math.sin(perp) * capLen);
+                    ctx.lineTo(px + Math.cos(perp) * capLen, py + Math.sin(perp) * capLen);
+                    ctx.stroke();
+
+                    // Draggable handle circle
+                    ctx.fillStyle = '#f59e0b';
+                    ctx.beginPath();
+                    ctx.arc(px, py, 6.5 * dpr, 0, Math.PI * 2);
+                    ctx.fill();
+                    ctx.strokeStyle = '#0f172a';
+                    ctx.lineWidth = 1.5 * dpr;
+                    ctx.stroke();
+                });
+
+                // Scale label pill at midpoint
+                const midX = (m.x1 + m.x2) / 2;
+                const midY = (m.y1 + m.y2) / 2 - 14 * dpr;
+                ctx.font = `600 ${11 * dpr}px "JetBrains Mono", monospace`;
+                const scaleLabel = `${state.referenceMm.toFixed(1)} mm`;
+                const textW = ctx.measureText(scaleLabel).width;
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.88)';
+                ctx.fillRect(midX - textW / 2 - 6 * dpr, midY - 11 * dpr, textW + 12 * dpr, 16 * dpr);
+                ctx.fillStyle = '#fcd34d';
+                ctx.textAlign = 'center';
+                ctx.fillText(scaleLabel, midX, midY);
+                ctx.restore();
+
+                // 3. Draw Orifice Measurement Circle (Cyan / Sky)
+                const circleAlpha = state.interactionMode === 'ruler' ? 0.45 : 1.0;
+                ctx.save();
+                ctx.globalAlpha = circleAlpha;
+
+                // Translucent cyan fill
+                ctx.fillStyle = 'rgba(56, 189, 248, 0.16)';
+                ctx.beginPath();
+                ctx.arc(m.cx, m.cy, m.circleRadiusPx, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Dashed precision perimeter
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2.2 * dpr;
+                ctx.setLineDash([6 * dpr, 4 * dpr]);
+                ctx.stroke();
+                ctx.setLineDash([]);
+
+                // Crosshair lines through center
+                ctx.strokeStyle = 'rgba(56, 189, 248, 0.65)';
+                ctx.lineWidth = 1 * dpr;
+                ctx.beginPath();
+                ctx.moveTo(m.cx - m.circleRadiusPx - 8 * dpr, m.cy);
+                ctx.lineTo(m.cx + m.circleRadiusPx + 8 * dpr, m.cy);
+                ctx.moveTo(m.cx, m.cy - m.circleRadiusPx - 8 * dpr);
+                ctx.lineTo(m.cx, m.cy + m.circleRadiusPx + 8 * dpr);
+                ctx.stroke();
+
+                // Center move handle
+                ctx.fillStyle = '#38bdf8';
+                ctx.beginPath();
+                ctx.arc(m.cx, m.cy, 5 * dpr, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 1.5 * dpr;
+                ctx.stroke();
+
+                // Rim resize handle (at 0 radians / right edge)
+                const rimX = m.cx + m.circleRadiusPx;
+                const rimY = m.cy;
+                ctx.fillStyle = '#10b981'; // emerald-500
+                ctx.beginPath();
+                ctx.arc(rimX, rimY, 6.5 * dpr, 0, Math.PI * 2);
+                ctx.fill();
+                ctx.strokeStyle = '#0f172a';
+                ctx.lineWidth = 1.5 * dpr;
+                ctx.stroke();
+
+                // Diameter badge above circle
+                const holeLabel = `Ø ${m.diameterMm.toFixed(2)} mm`;
+                ctx.font = `700 ${11 * dpr}px "JetBrains Mono", monospace`;
+                const hTextW = ctx.measureText(holeLabel).width;
+                const badgeY = Math.max(24 * dpr, m.cy - m.circleRadiusPx - 12 * dpr);
+                ctx.fillStyle = 'rgba(15, 23, 42, 0.9)';
+                ctx.fillRect(m.cx - hTextW / 2 - 6 * dpr, badgeY - 11 * dpr, hTextW + 12 * dpr, 16 * dpr);
+                ctx.fillStyle = '#38bdf8';
+                ctx.textAlign = 'center';
+                ctx.fillText(holeLabel, m.cx, badgeY);
+
+                ctx.restore();
+            }
+
+            /**
+             * Auto-Snap: Samples pixel brightness radially outward from the circle center
+             * to find the dark-to-light boundary edge of a physical nozzle opening.
+             */
+            function autoSnapToDarkOrifice() {
+                const m = getOpticalMetrics();
+                const ctx = els.holeCanvas.getContext('2d');
+                // Redraw clean background without overlay to inspect true image/specimen pixels
+                ctx.clearRect(0, 0, m.w, m.h);
+                if (state.uploadedImage) {
+                    const img = state.uploadedImage;
+                    const scale = Math.min(m.w / img.width, m.h / img.height);
+                    const drawW = img.width * scale;
+                    const drawH = img.height * scale;
+                    ctx.drawImage(img, (m.w - drawW) / 2, (m.h - drawH) / 2, drawW, drawH);
+                } else {
+                    drawSyntheticNozzleScene(ctx, m.w, m.h);
+                }
+
+                const maxSearchR = Math.floor(Math.min(m.w, m.h) * 0.35);
+                const cx = Math.round(m.cx);
+                const cy = Math.round(m.cy);
+                const imgData = ctx.getImageData(0, 0, m.w, m.h).data;
+
+                function getLuma(x, y) {
+                    if (x < 0 || y < 0 || x >= m.w || y >= m.h) return 255;
+                    const idx = (y * m.w + x) * 4;
+                    return 0.299 * imgData[idx] + 0.587 * imgData[idx + 1] + 0.114 * imgData[idx + 2];
+                }
+
+                const centerLuma = getLuma(cx, cy);
+                const angles = [0, Math.PI / 4, Math.PI / 2, (3 * Math.PI) / 4, Math.PI, (5 * Math.PI) / 4, (3 * Math.PI) / 2, (7 * Math.PI) / 4];
+                const detectedRadii = [];
+
+                angles.forEach(ang => {
+                    let prevLuma = centerLuma;
+                    for (let r = 4; r < maxSearchR; r++) {
+                        const sx = Math.round(cx + Math.cos(ang) * r);
+                        const sy = Math.round(cy + Math.sin(ang) * r);
+                        const luma = getLuma(sx, sy);
+                        // Detect sharp contrast transition out of dark opening
+                        if (luma - centerLuma > 35 && luma - prevLuma > 8) {
+                            detectedRadii.push(r);
+                            break;
+                        }
+                        prevLuma = luma;
+                    }
+                });
+
+                if (detectedRadii.length >= 4) {
+                    detectedRadii.sort((a, b) => a - b);
+                    const medianR = detectedRadii[Math.floor(detectedRadii.length / 2)];
+                    state.circle.rNorm = Math.max(0.015, Math.min(0.42, medianR / m.minDim));
+                    state.holeSource = 'optical';
+                    syncAllUI();
+                    showToast(`Snapped to orifice edge (Ø ${getOpticalMetrics().diameterMm.toFixed(2)} mm)`);
+                } else {
+                    drawHoleCanvas();
+                    showToast('Center the cyan crosshair over a dark opening first', 'warn');
+                }
+            }
+
+            // Pointer Interaction Handlers for Hole Canvas (Mouse + Touch unified)
+            function getPointerCanvasCoords(evt) {
+                const rect = els.holeCanvas.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                const clientX = evt.touches ? evt.touches[0].clientX : evt.clientX;
+                const clientY = evt.touches ? evt.touches[0].clientY : evt.clientY;
+                return {
+                    x: (clientX - rect.left) * dpr,
+                    y: (clientY - rect.top) * dpr
+                };
+            }
+
+            function handleCanvasPointerDown(evt) {
+                const pos = getPointerCanvasCoords(evt);
+                const m = getOpticalMetrics();
+                const dpr = window.devicePixelRatio || 1;
+                const hitRadius = 22 * dpr;
+
+                const canRuler = state.interactionMode === 'both' || state.interactionMode === 'ruler';
+                const canCircle = state.interactionMode === 'both' || state.interactionMode === 'circle';
+
+                // Priority 1: Circle Rim Resize Handle
+                if (canCircle && Math.hypot(pos.x - (m.cx + m.circleRadiusPx), pos.y - m.cy) <= hitRadius) {
+                    dragTarget = 'circleRim';
+                    evt.preventDefault();
+                    return;
+                }
+
+                // Priority 2: Ruler Endpoints
+                if (canRuler && Math.hypot(pos.x - m.x1, pos.y - m.y1) <= hitRadius) {
+                    dragTarget = 'p1';
+                    evt.preventDefault();
+                    return;
+                }
+                if (canRuler && Math.hypot(pos.x - m.x2, pos.y - m.y2) <= hitRadius) {
+                    dragTarget = 'p2';
+                    evt.preventDefault();
+                    return;
+                }
+
+                // Priority 3: Circle Center / Interior Move
+                if (canCircle && Math.hypot(pos.x - m.cx, pos.y - m.cy) <= Math.max(hitRadius, m.circleRadiusPx)) {
+                    dragTarget = 'circleCenter';
+                    dragOffset = { x: pos.x - m.cx, y: pos.y - m.cy };
+                    evt.preventDefault();
+                    return;
+                }
+            }
+
+            function handleCanvasPointerMove(evt) {
+                if (!dragTarget) return;
+                evt.preventDefault();
+                const pos = getPointerCanvasCoords(evt);
+                const m = getOpticalMetrics();
+
+                const clampedX = Math.max(10, Math.min(m.w - 10, pos.x));
+                const clampedY = Math.max(10, Math.min(m.h - 10, pos.y));
+
+                if (dragTarget === 'p1') {
+                    state.ruler.p1.x = clampedX / m.w;
+                    state.ruler.p1.y = clampedY / m.h;
+                } else if (dragTarget === 'p2') {
+                    state.ruler.p2.x = clampedX / m.w;
+                    state.ruler.p2.y = clampedY / m.h;
+                } else if (dragTarget === 'circleCenter') {
+                    const newCx = Math.max(10, Math.min(m.w - 10, pos.x - dragOffset.x));
+                    const newCy = Math.max(10, Math.min(m.h - 10, pos.y - dragOffset.y));
+                    state.circle.cx = newCx / m.w;
+                    state.circle.cy = newCy / m.h;
+                } else if (dragTarget === 'circleRim') {
+                    const newR = Math.max(6, Math.min(m.minDim * 0.45, Math.hypot(pos.x - m.cx, pos.y - m.cy)));
+                    state.circle.rNorm = newR / m.minDim;
+                }
+
+                // Automatically switch to optical mode when user interacts with canvas
+                state.holeSource = 'optical';
+                syncAllUI();
+            }
+
+            function handleCanvasPointerUp() {
+                dragTarget = null;
+            }
+
+            // =========================================================================
+            // MODULE 3: DEPLETION TIMELINE CHART RENDERER
+            // =========================================================================
+            function drawDepletionChart(daysRemaining, reorderDays, dailyRate) {
+                const canvas = els.depletionChart;
+                const rect = els.chartContainer.getBoundingClientRect();
+                const dpr = window.devicePixelRatio || 1;
+                canvas.width = Math.max(300, Math.floor(rect.width * dpr));
+                canvas.height = Math.max(200, Math.floor(rect.height * dpr));
+
+                const ctx = canvas.getContext('2d');
+                const w = canvas.width;
+                const h = canvas.height;
+                ctx.clearRect(0, 0, w, h);
+
+                const padLeft = 48 * dpr;
+                const padRight = 24 * dpr;
+                const padTop = 20 * dpr;
+                const padBottom = 34 * dpr;
+                const plotW = w - padLeft - padRight;
+                const plotH = h - padTop - padBottom;
+
+                const maxWeight = Math.max(state.totalWeightG, state.remainingWeightG, 1);
+                const finiteDays = isFinite(daysRemaining) && daysRemaining > 0 ? Math.min(daysRemaining, 3650) : 30;
+
+                // Horizontal grid lines & Y-axis labels
+                ctx.font = `${10 * dpr}px "JetBrains Mono", monospace`;
+                ctx.textAlign = 'right';
+                const ySteps = 4;
+                for (let i = 0; i <= ySteps; i++) {
+                    const frac = i / ySteps;
+                    const y = padTop + plotH * (1 - frac);
+                    const val = maxWeight * frac;
+
+                    ctx.strokeStyle = 'rgba(51, 65, 85, 0.5)';
+                    ctx.lineWidth = 1 * dpr;
+                    ctx.beginPath();
+                    ctx.moveTo(padLeft, y);
+                    ctx.lineTo(padLeft + plotW, y);
+                    ctx.stroke();
+
+                    ctx.fillStyle = '#94a3b8';
+                    ctx.fillText(`${val.toFixed(0)}g`, padLeft - 8 * dpr, y + 3 * dpr);
+                }
+
+                // 20% Reorder Threshold Line
+                const reorderMass = state.totalWeightG * 0.2;
+                if (reorderMass <= maxWeight) {
+                    const ry = padTop + plotH * (1 - reorderMass / maxWeight);
+                    ctx.save();
+                    ctx.strokeStyle = '#fbbf24';
+                    ctx.lineWidth = 1.5 * dpr;
+                    ctx.setLineDash([5 * dpr, 4 * dpr]);
+                    ctx.beginPath();
+                    ctx.moveTo(padLeft, ry);
+                    ctx.lineTo(padLeft + plotW, ry);
+                    ctx.stroke();
+                    ctx.restore();
+                }
+
+                // Depletion Line Trajectory
+                const startX = padLeft;
+                const startY = padTop + plotH * (1 - state.remainingWeightG / maxWeight);
+                const endX = dailyRate > 0 ? padLeft + plotW : padLeft + plotW;
+                const endY = dailyRate > 0 ? padTop + plotH : startY;
+
+                // Area gradient under curve
+                const areaGrad = ctx.createLinearGradient(0, startY, 0, padTop + plotH);
+                areaGrad.addColorStop(0, 'rgba(56, 189, 248, 0.28)');
+                areaGrad.addColorStop(1, 'rgba(56, 189, 248, 0.0)');
+                ctx.fillStyle = areaGrad;
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.lineTo(endX, padTop + plotH);
+                ctx.lineTo(startX, padTop + plotH);
+                ctx.closePath();
+                ctx.fill();
+
+                // Main Trajectory Line
+                ctx.strokeStyle = '#38bdf8';
+                ctx.lineWidth = 2.8 * dpr;
+                ctx.beginPath();
+                ctx.moveTo(startX, startY);
+                ctx.lineTo(endX, endY);
+                ctx.stroke();
+
+                // Start point marker
+                ctx.fillStyle = '#38bdf8';
+                ctx.beginPath();
+                ctx.arc(startX, startY, 4.5 * dpr, 0, Math.PI * 2);
+                ctx.fill();
+
+                // Reorder intersection marker if applicable
+                if (dailyRate > 0 && state.remainingWeightG > reorderMass) {
+                    const fracReorder = reorderDays / finiteDays;
+                    const ix = padLeft + plotW * fracReorder;
+                    const iy = padTop + plotH * (1 - reorderMass / maxWeight);
+                    ctx.fillStyle = '#fbbf24';
+                    ctx.beginPath();
+                    ctx.arc(ix, iy, 4.5 * dpr, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // End point marker
+                if (dailyRate > 0) {
+                    ctx.fillStyle = '#f43f5e';
+                    ctx.beginPath();
+                    ctx.arc(endX, endY, 4.5 * dpr, 0, Math.PI * 2);
+                    ctx.fill();
+                }
+
+                // X-Axis Date Ticks
+                ctx.fillStyle = '#94a3b8';
+                ctx.textAlign = 'center';
+                const xTicks = 3;
+                for (let i = 0; i <= xTicks; i++) {
+                    const frac = i / xTicks;
+                    const tx = padLeft + plotW * frac;
+                    const dOffset = Math.round(finiteDays * frac);
+                    const dateStr = addDaysToIsoDate(state.startDate, dOffset);
+                    ctx.fillText(dateStr, tx, padTop + plotH + 18 * dpr);
+                }
+            }
+
+            // =========================================================================
+            // MASTER UI SYNCHRONIZATION
+            // =========================================================================
+            function renderUsageLogs() {
+                if (!state.usageLogs.length) {
+                    els.usageLogList.innerHTML = `
+                        <div class="text-xs text-slate-400 italic py-3 text-center border border-dashed border-slate-200 rounded-lg">
+                            No daily usage entries logged yet.
+                        </div>`;
+                    return;
+                }
+
+                els.usageLogList.innerHTML = state.usageLogs
+                    .slice()
+                    .reverse()
+                    .map(entry => `
+                        <div class="flex items-center justify-between px-3 py-1.5 rounded-lg bg-slate-50 border border-slate-200 text-xs font-mono">
+                            <div class="flex items-center gap-2.5">
+                                <span class="text-slate-500">${entry.date}</span>
+                                <span class="font-bold text-slate-800">${entry.grams.toFixed(2)} g</span>
+                            </div>
+                            <button type="button" data-delete-log="${entry.id}" class="text-slate-400 hover:text-rose-600 px-1.5 py-0.5 rounded transition" title="Remove entry">
+                                ✕
+                            </button>
+                        </div>
+                    `)
+                    .join('');
+            }
+
+            function syncAllUI() {
+                // 1. Optical vs Manual Hole Sync
+                const optical = getOpticalMetrics();
+                const geom = getActiveHoleGeometry();
+
+                els.hudScalePx.textContent = optical.rulerPx.toFixed(1);
+                els.hudScaleMm.textContent = state.referenceMm.toFixed(1);
+                els.hudHoleDiam.textContent = optical.diameterMm.toFixed(2);
+                els.hudHolePx.textContent = optical.circleDiameterPx.toFixed(1);
+                els.hudHoleArea.textContent = optical.areaMm2.toFixed(2);
+
+                if (state.holeSource === 'optical') {
+                    state.manualDiameterMm = Number(optical.diameterMm.toFixed(2));
+                    els.manualDiameterInput.value = state.manualDiameterMm.toFixed(2);
+                    els.srcOpticalBtn.className = 'py-1.5 px-2 rounded-md text-xs font-semibold bg-white text-slate-900 shadow-sm transition';
+                    els.srcManualBtn.className = 'py-1.5 px-2 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
+                    els.kpiHoleSourceBadge.textContent = 'OPTICAL';
+                } else {
+                    els.srcManualBtn.className = 'py-1.5 px-2 rounded-md text-xs font-semibold bg-white text-slate-900 shadow-sm transition';
+                    els.srcOpticalBtn.className = 'py-1.5 px-2 rounded-md text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
+                    els.kpiHoleSourceBadge.textContent = 'MANUAL';
+                }
+
+                els.panelAreaReadout.textContent = geom.areaMm2.toFixed(2);
+                els.panelRadiusReadout.textContent = geom.radiusMm.toFixed(2);
+                els.kpiDiameter.textContent = geom.diameterMm.toFixed(2);
+                els.kpiArea.textContent = geom.areaMm2.toFixed(2);
+
+                drawHoleCanvas();
+
+                // 2. Material & Consumption Sync
+                if (state.materialType === 'paste') {
+                    els.matPasteBtn.className = 'p-3 rounded-xl border-2 border-sky-600 bg-sky-50/70 text-left transition';
+                    els.matPasteBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-sky-600';
+                    els.matPowderBtn.className = 'p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition';
+                    els.matPowderBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-slate-300';
+                } else {
+                    els.matPowderBtn.className = 'p-3 rounded-xl border-2 border-amber-500 bg-amber-50/70 text-left transition';
+                    els.matPowderBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-amber-500';
+                    els.matPasteBtn.className = 'p-3 rounded-xl border border-slate-200 bg-white hover:bg-slate-50 text-left transition';
+                    els.matPasteBtn.querySelector('span:last-child').className = 'w-2.5 h-2.5 rounded-full bg-slate-300';
+                }
+
+                els.packingSlider.value = state.packingEfficiency;
+                els.packingValueDisplay.textContent = `${state.packingEfficiency}%`;
+
+                const model = getModelDailyConsumption();
+                const logAvg = getLoggedAverageConsumption();
+                const activeRate = getActiveConsumptionRate();
+
+                els.modelRateReadout.textContent = model.gramsPerDay.toFixed(2);
+                els.modelVolumeReadout.textContent = (model.volumeCm3 * 1000).toFixed(1);
+                els.logAvgBadgeVal.textContent = logAvg.toFixed(2);
+
+                // Toggle button styling between Model vs Log rate
+                const isLogActive = state.rateSource === 'log' && logAvg > 0;
+                els.useModelRateBtn.className = !isLogActive
+                    ? 'px-3 py-2 rounded-lg text-xs font-semibold bg-sky-600 text-white shadow-sm transition shrink-0'
+                    : 'px-3 py-2 rounded-lg text-xs font-semibold bg-slate-800 text-slate-300 hover:text-white border border-slate-700 transition shrink-0';
+
+                els.useLogRateBtn.className = isLogActive
+                    ? 'px-2.5 py-1.5 rounded-lg text-xs font-semibold bg-amber-500 text-slate-950 shadow-sm transition'
+                    : 'px-2.5 py-1.5 rounded-lg text-xs font-semibold border border-slate-300 bg-white hover:bg-slate-50 text-slate-700 transition';
+
+                els.forecastSourceModelBtn.className = !isLogActive
+                    ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition'
+                    : 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
+
+                els.forecastSourceLogBtn.className = isLogActive
+                    ? 'px-3 py-1.5 rounded-lg text-xs font-semibold bg-white text-slate-900 shadow-sm transition'
+                    : 'px-3 py-1.5 rounded-lg text-xs font-semibold text-slate-600 hover:text-slate-900 transition';
+
+                els.kpiRateModeBadge.textContent = activeRate.sourceLabel;
+                els.kpiDailyRate.textContent = activeRate.gramsPerDay.toFixed(2);
+                els.kpiDailyVol.textContent = activeRate.volumeCm3PerDay.toFixed(2);
+
+                renderUsageLogs();
+
+                // 3. Depletion Predictor & Gauge Sync
+                const totalW = Math.max(0.1, state.totalWeightG);
+                const remW = Math.max(0, state.remainingWeightG);
+                const pct = Math.min(100, Math.max(0, (remW / totalW) * 100));
+
+                els.kpiStockPctBadge.textContent = `${pct.toFixed(0)}% LEFT`;
+                els.kpiStockGrams.textContent = remW.toFixed(1);
+                els.kpiTotalGrams.textContent = totalW.toFixed(1);
+                els.kpiStartDateDisplay.textContent = state.startDate;
+
+                els.stockBarLabel.textContent = `${remW.toFixed(1)} g / ${totalW.toFixed(1)} g (${pct.toFixed(1)}%)`;
+                els.gaugeMaxLabel.textContent = totalW.toFixed(0);
+                els.stockProgressBar.style.width = `${pct}%`;
+
+                // Color shift progress bar when low
+                if (pct <= 20) {
+                    els.stockProgressBar.className = 'h-full rounded-full bg-gradient-to-r from-rose-600 to-amber-500 transition-all duration-300';
+                } else {
+                    els.stockProgressBar.className = 'h-full rounded-full bg-gradient-to-r from-sky-500 to-emerald-500 transition-all duration-300';
+                }
+
+                const rate = activeRate.gramsPerDay;
+
+                // Update What-If Savings Simulator
+                const simPct = state.simReductionPct;
+                els.simReductionBadge.textContent = `-${simPct}% Flow`;
+                if (rate > 0) {
+                    const simNewRate = rate * (1 - simPct / 100);
+                    const baseFullDays = Math.ceil(totalW / rate);
+                    const simFullDays = Math.ceil(totalW / simNewRate);
+                    const extraDays = Math.max(0, simFullDays - baseFullDays);
+                    els.simNewRateOutput.textContent = simNewRate.toFixed(2);
+                    els.simExtraDaysOutput.textContent = extraDays.toString();
+                    els.simNewLifespanOutput.textContent = simFullDays.toString();
+                } else {
+                    els.simNewRateOutput.textContent = '0.00';
+                    els.simExtraDaysOutput.textContent = '0';
+                    els.simNewLifespanOutput.textContent = '0';
+                }
+
+                // Update Publish Snapshot Preview Badge
+                const fullLifespanPreview = rate > 0 ? Math.ceil(totalW / rate) : 0;
+                els.publishPreviewBadge.textContent = `${state.productName || 'Product'} • Net: ${totalW.toFixed(0)}g • Hole: ${geom.diameterMm.toFixed(2)}mm • ${rate.toFixed(2)} g/day • Lifespan: ${fullLifespanPreview} days`;
+
+                if (remW <= 0) {
+                    els.kpiDaysLeft.textContent = '0';
+                    els.kpiFinishDate.textContent = state.startDate;
+                    els.emptyDateOutput.textContent = state.startDate;
+                    els.emptyDaysOutput.textContent = 'Empty now';
+                    els.reorderDateOutput.textContent = state.startDate;
+                    els.reorderDaysOutput.textContent = 'Reorder immediately';
+                    drawDepletionChart(0, 0, rate);
+                } else if (rate <= 0) {
+                    els.kpiDaysLeft.textContent = '∞';
+                    els.kpiFinishDate.textContent = 'No Usage';
+                    els.emptyDateOutput.textContent = '—';
+                    els.emptyDaysOutput.textContent = 'Set consumption > 0';
+                    els.reorderDateOutput.textContent = '—';
+                    els.reorderDaysOutput.textContent = '—';
+                    drawDepletionChart(0, 0, 0);
+                } else {
+                    const exactDays = remW / rate;
+                    const wholeDays = Math.ceil(exactDays);
+                    const finishDate = addDaysToIsoDate(state.startDate, wholeDays);
+
+                    els.kpiDaysLeft.textContent = wholeDays.toString();
+                    els.kpiFinishDate.textContent = finishDate;
+                    els.emptyDateOutput.textContent = finishDate;
+                    els.emptyDaysOutput.textContent = `${exactDays.toFixed(1)} days exact`;
+
+                    const reorderThresholdG = totalW * 0.2;
+                    if (remW <= reorderThresholdG) {
+                        els.reorderDateOutput.textContent = 'Reorder Now';
+                        els.reorderDaysOutput.textContent = 'Below 20% threshold';
+                        drawDepletionChart(exactDays, 0, rate);
+                    } else {
+                        const reorderDays = (remW - reorderThresholdG) / rate;
+                        const reorderDate = addDaysToIsoDate(state.startDate, Math.ceil(reorderDays));
+                        els.reorderDateOutput.textContent = reorderDate;
+                        els.reorderDaysOutput.textContent = `In ${Math.ceil(reorderDays)} days`;
+                        drawDepletionChart(exactDays, reorderDays, rate);
+                    }
+                }
+            }
+
+            // =========================================================================
+            // EVENT LISTENERS
+            // =========================================================================
+            function bindEvents() {
+                // Canvas Pointer Events
+                els.holeCanvas.addEventListener('mousedown', handleCanvasPointerDown);
+                window.addEventListener('mousemove', handleCanvasPointerMove);
+                window.addEventListener('mouseup', handleCanvasPointerUp);
+
+                els.holeCanvas.addEventListener('touchstart', handleCanvasPointerDown, { passive: false });
+                window.addEventListener('touchmove', handleCanvasPointerMove, { passive: false });
+                window.addEventListener('touchend', handleCanvasPointerUp);
+
+                // Photo Upload
+                els.photoUploadInput.addEventListener('change', (e) => {
+                    const file = e.target.files && e.target.files[0];
+                    if (!file) return;
+                    const reader = new FileReader();
+                    reader.onload = (ev) => {
+                        const img = new Image();
+                        img.onload = () => {
+                            state.uploadedImage = img;
+                            state.holeSource = 'optical';
+                            syncAllUI();
+                            showToast('Photo loaded — adjust ruler & circle to measure');
+                        };
+                        img.src = ev.target.result;
+                    };
+                    reader.readAsDataURL(file);
+                });
+
+                // Canvas Tool Mode Buttons
+                function setToolMode(mode) {
+                    state.interactionMode = mode;
+                    [
+                        [els.toolModeBoth, 'both'],
+                        [els.toolModeRuler, 'ruler'],
+                        [els.toolModeCircle, 'circle']
+                    ].forEach(([btn, m]) => {
+                        btn.className = mode === m
+                            ? 'px-2.5 py-1.5 rounded-md text-xs font-medium bg-sky-600 text-white transition'
+                            : 'px-2.5 py-1.5 rounded-md text-xs font-medium text-slate-300 hover:text-white transition';
+                    });
+                    drawHoleCanvas();
+                }
+
+                els.toolModeBoth.addEventListener('click', () => setToolMode('both'));
+                els.toolModeRuler.addEventListener('click', () => setToolMode('ruler'));
+                els.toolModeCircle.addEventListener('click', () => setToolMode('circle'));
+
+                els.referenceMmInput.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (val > 0) {
+                        state.referenceMm = val;
+                        syncAllUI();
+                    }
+                });
+
+                els.btnAutoDetectHole.addEventListener('click', autoSnapToDarkOrifice);
+
+                // Optical vs Manual Source Buttons
+                els.srcOpticalBtn.addEventListener('click', () => {
+                    state.holeSource = 'optical';
+                    syncAllUI();
+                });
+                els.srcManualBtn.addEventListener('click', () => {
+                    state.holeSource = 'manual';
+                    syncAllUI();
+                });
+
+                els.manualDiameterInput.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (val > 0) {
+                        state.manualDiameterMm = val;
+                        state.holeSource = 'manual';
+                        syncAllUI();
+                    }
+                });
+
+                // Material Rheology Presets (Paste vs Powder)
+                els.matPasteBtn.addEventListener('click', () => {
+                    state.materialType = 'paste';
+                    state.packingEfficiency = 100;
+                    if (state.density < 0.9) {
+                        state.density = 1.38;
+                        els.densityInput.value = '1.38';
+                    }
+                    syncAllUI();
+                });
+
+                els.matPowderBtn.addEventListener('click', () => {
+                    state.materialType = 'powder';
+                    state.packingEfficiency = 65;
+                    if (state.density > 1.2) {
+                        state.density = 0.85;
+                        els.densityInput.value = '0.85';
+                    }
+                    syncAllUI();
+                });
+
+                els.densityInput.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (val > 0) {
+                        state.density = val;
+                        syncAllUI();
+                    }
+                });
+
+                els.dispenseLengthInput.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (val >= 0) {
+                        state.dispenseLengthMm = val;
+                        syncAllUI();
+                    }
+                });
+
+                els.packingSlider.addEventListener('input', (e) => {
+                    state.packingEfficiency = parseInt(e.target.value, 10);
+                    syncAllUI();
+                });
+
+                // Consumption Source Toggles
+                function setRateSource(src) {
+                    if (src === 'log' && state.usageLogs.length === 0) {
+                        showToast('Add at least one daily usage log entry first', 'warn');
+                        return;
+                    }
+                    state.rateSource = src;
+                    syncAllUI();
+                }
+
+                els.useModelRateBtn.addEventListener('click', () => setRateSource('model'));
+                els.useLogRateBtn.addEventListener('click', () => setRateSource('log'));
+                els.forecastSourceModelBtn.addEventListener('click', () => setRateSource('model'));
+                els.forecastSourceLogBtn.addEventListener('click', () => setRateSource('log'));
+
+                // Add Daily Usage Log Entry
+                els.btnAddLog.addEventListener('click', () => {
+                    const grams = parseFloat(els.newLogGramsInput.value);
+                    const dateVal = els.newLogDateInput.value || state.startDate;
+                    if (isNaN(grams) || grams <= 0) {
+                        showToast('Enter a valid positive weight in grams', 'warn');
+                        return;
+                    }
+                    state.usageLogs.push({
+                        id: Date.now(),
+                        date: dateVal,
+                        grams: grams
+                    });
+                    els.newLogGramsInput.value = '';
+                    state.rateSource = 'log';
+                    syncAllUI();
+                    showToast(`Logged ${grams.toFixed(2)} g for ${dateVal}`);
+                });
+
+                // Delete Usage Log Entry (Event Delegation)
+                els.usageLogList.addEventListener('click', (e) => {
+                    const btn = e.target.closest('[data-delete-log]');
+                    if (!btn) return;
+                    const id = Number(btn.getAttribute('data-delete-log'));
+                    state.usageLogs = state.usageLogs.filter(item => item.id !== id);
+                    if (state.usageLogs.length === 0 && state.rateSource === 'log') {
+                        state.rateSource = 'model';
+                    }
+                    syncAllUI();
+                });
+
+                // Inventory & Forecast Inputs
+                els.productNameInput.addEventListener('input', (e) => {
+                    state.productName = e.target.value;
+                    syncAllUI();
+                });
+
+                document.querySelectorAll('[data-preset-qty]').forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        const qty = parseFloat(btn.getAttribute('data-preset-qty'));
+                        if (qty > 0) {
+                            state.totalWeightG = qty;
+                            state.remainingWeightG = qty;
+                            els.totalWeightInput.value = qty;
+                            els.remainingWeightInput.value = qty;
+                            syncAllUI();
+                            showToast(`Set product Net Qty & Remaining to ${qty}g`);
+                        }
+                    });
+                });
+
+                els.btnResetRemainingToNet.addEventListener('click', () => {
+                    state.remainingWeightG = state.totalWeightG;
+                    els.remainingWeightInput.value = state.totalWeightG;
+                    syncAllUI();
+                    showToast(`Reset remaining stock to full ${state.totalWeightG}g`);
+                });
+
+                els.totalWeightInput.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (val > 0) {
+                        state.totalWeightG = val;
+                        syncAllUI();
+                    }
+                });
+
+                els.remainingWeightInput.addEventListener('input', (e) => {
+                    const val = parseFloat(e.target.value);
+                    if (val >= 0) {
+                        state.remainingWeightG = val;
+                        syncAllUI();
+                    }
+                });
+
+                els.startDateInput.addEventListener('change', (e) => {
+                    if (e.target.value) {
+                        state.startDate = e.target.value;
+                        syncAllUI();
+                    }
+                });
+
+                // Savings Simulator Slider
+                els.simReductionSlider.addEventListener('input', (e) => {
+                    state.simReductionPct = parseInt(e.target.value, 10);
+                    syncAllUI();
+                });
+
+                // Community Logbook Publish, Filter, Sort & Load Preset
+                els.btnPublishLogbook.addEventListener('click', publishCurrentCalculation);
+
+                els.logbookSearchInput.addEventListener('input', (e) => {
+                    state.logbookSearch = e.target.value;
+                    renderCommunityLogbook();
+                });
+
+                els.logbookSortSelect.addEventListener('change', (e) => {
+                    state.logbookSort = e.target.value;
+                    renderCommunityLogbook();
+                });
+
+                document.querySelectorAll('[data-filter-type]').forEach((btn) => {
+                    btn.addEventListener('click', () => {
+                        state.logbookFilterType = btn.getAttribute('data-filter-type');
+                        document.querySelectorAll('[data-filter-type]').forEach((b) => {
+                            b.className = b === btn
+                                ? 'px-2.5 py-1 rounded-md bg-white text-slate-900 shadow-sm transition'
+                                : 'px-2.5 py-1 rounded-md text-slate-600 hover:text-slate-900 transition';
+                        });
+                        renderCommunityLogbook();
+                    });
+                });
+
+                els.communityLogbookBody.addEventListener('click', (e) => {
+                    const loadBtn = e.target.closest('[data-load-entry-id]');
+                    if (!loadBtn) return;
+                    const entryId = loadBtn.getAttribute('data-load-entry-id');
+                    const found = state.communityEntries.find((item) => String(item.id) === String(entryId));
+                    if (found) {
+                        applyCommunityPreset(found);
+                    }
+                });
+
+                // Reset Sample Data
+                els.btnLoadSample.addEventListener('click', () => {
+                    state.uploadedImage = null;
+                    state.holeSource = 'optical';
+                    state.referenceMm = 15.0;
+                    state.ruler = { p1: { x: 0.25, y: 0.78 }, p2: { x: 0.55, y: 0.78 } };
+                    state.circle = { cx: 0.50, cy: 0.45, rNorm: 0.085 };
+                    state.productName = 'Mint Fluoride Toothpaste';
+                    state.materialType = 'paste';
+                    state.density = 1.38;
+                    state.dispenseLengthMm = 25;
+                    state.packingEfficiency = 100;
+                    state.rateSource = 'model';
+                    state.totalWeightG = 100.0;
+                    state.remainingWeightG = 75.0;
+                    state.startDate = '2026-11-21';
+
+                    els.productNameInput.value = 'Mint Fluoride Toothpaste';
+                    els.referenceMmInput.value = '15.0';
+                    els.densityInput.value = '1.38';
+                    els.dispenseLengthInput.value = '25';
+                    els.totalWeightInput.value = '100';
+                    els.remainingWeightInput.value = '75';
+                    els.startDateInput.value = '2026-11-21';
+
+                    syncAllUI();
+                    showToast('Reset to calibrated paste nozzle sample');
+                });
+
+                // Copy Metrology Summary Report
+                els.btnCopyReport.addEventListener('click', () => {
+                    const geom = getActiveHoleGeometry();
+                    const activeRate = getActiveConsumptionRate();
+                    const report = [
+                        `=== APERTURE & DEPLETION LAB REPORT ===`,
+                        `Material Type: ${state.materialType.toUpperCase()} (Packing: ${state.packingEfficiency}%, Density: ${state.density} g/cm³)`,
+                        `Output Hole Diameter: ${geom.diameterMm.toFixed(2)} mm | Area: ${geom.areaMm2.toFixed(2)} mm²`,
+                        `Active Daily Consumption (${activeRate.sourceLabel}): ${activeRate.gramsPerDay.toFixed(2)} g/day`,
+                        `Remaining Stock: ${state.remainingWeightG.toFixed(1)} g / ${state.totalWeightG.toFixed(1)} g`,
+                        `Start Date: ${state.startDate} -> Projected Finish: ${els.kpiFinishDate.textContent} (${els.kpiDaysLeft.textContent} days)`
+                    ].join('\n');
+
+                    const tempArea = document.createElement('textarea');
+                    tempArea.value = report;
+                    document.body.appendChild(tempArea);
+                    tempArea.select();
+                    try {
+                        document.execCommand('copy');
+                        showToast('Metrology summary copied to clipboard');
+                    } catch (err) {
+                        showToast('Unable to copy summary', 'warn');
+                    }
+                    document.body.removeChild(tempArea);
+                });
+
+                // Responsive Window Resize
+                window.addEventListener('resize', () => {
+                    resizeHoleCanvas();
+                    syncAllUI();
+                });
+            }
+
+            // Initialize Application on Load
+            window.addEventListener('load', () => {
+                els.newLogDateInput.value = state.startDate;
+                bindEvents();
+                resizeHoleCanvas();
+                syncAllUI();
+                initFirebaseLogbook();
+            });
+        })();
+    </script>
+</body>
+</html>
